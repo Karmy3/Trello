@@ -6,13 +6,15 @@
 }
 
 .logo {
-  height: 6em;
-  padding: 1.5em;
+  height: 1.5em;
   will-change: filter;
   transition: filter 300ms;
 }
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.trello:hover{
+  filter: drop-shadow(0 0 2em #61dafbaa);
 }
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
@@ -33,10 +35,156 @@
   }
 }
 
+.logo-e{
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 4px;
+  background-color: rgb(58, 213, 240);
+  color: #1c2b42;
+  text-align: center;
+}
+
 .card {
   padding: 2em;
 }
 
 .read-the-docs {
   color: #888;
+}
+
+.btn-container {
+  margin-right: 15px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  justify-items: center;
+  text-align: center;
+  align-items: center;
+  align-content: center;
+  gap: 5px;
+
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  
+  width: auto;
+  height: 30px;
+  white-space: nowrap;
+}
+
+.btn-container:hover {
+  background-color: #464646;
+}
+.btn-container:focus,
+.btn-container:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.btn-sidebar {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  justify-items: start;
+  align-items: start;
+  align-content: start;
+
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #a8a9af;
+  text-align: start;
+  cursor: pointer;
+  margin-top: 1%;
+  margin-right: 0%;
+  margin-left: 0%;
+  width: 100%;
+  height: 30px;
+  white-space: nowrap;
+}
+.btn-sidebar:hover {
+  background-color: #464646;
+}
+.btn-sidebar:active {
+  background-color: #1c2b42;
+  color:#509df1;
+  transform: scale(0.95);
+  border: none;
+}
+.btn-sidebar:focus,
+.btn-sidebar:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.btn-icon {
+  border-radius: 10px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: transparent;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+.btn-icon:hover {
+  background-color: #464646;
+}
+.btn-icon:focus,
+.btn-icon:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.btn-icon-list {
+  display: flex;
+  justify-content: center;
+  width:30px;
+  height:30px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  font-size: 1em;
+  margin: 1px;
+  font-family: inherit;
+  background-color: transparent;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  color: #a8a9af;
+}
+
+.btn-icon-list:hover {
+  background-color: #464646;
+}
+.btn-icon-list:focus,
+.btn-icon-list:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.btn-title{
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+
+  gap: 5px;
+  
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #a8a9af;
+  text-align: start;
+  cursor: pointer;
+  margin-top: 1%;
+  margin-right: 0%;
+  margin-left: 0%;
+  width: 100%;
+  height: 30px;
+  white-space: nowrap;
+}
+
+.img-profil{
+  width: 20px;
+  height: 20px;
+  border-radius: 15px;
 }
