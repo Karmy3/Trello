@@ -22,23 +22,23 @@ function Layout({ children }) {
 function Home() {
   return (
     <Layout>
-        <div className='home-container'>
-            <div className='sidebar-left'>
+            <div className='home-container'>
+                <div className='sidebar-left'>
                     <Link to="/boards">
                         <button className='btn-sidebar'>
-                            <i></i>
+                           <i class='bx  bx-table'></i>
                             <span>Tableaux</span>
                         </button>
                     </Link>
                     <Link to="/templates">
                         <button className='btn-sidebar'>
-                            <i></i>
+                            <i class='bx  bx-show'></i>
                             <span>Modeles</span>
                         </button>
                     </Link>
                     <Link to="/">
                         <button className='btn-sidebar'>
-                            <i></i>
+                            <i class='bx  bx-home'></i>
                             <span>Acceuil</span>
                         </button>
                     </Link>
@@ -55,18 +55,18 @@ function Home() {
                             </div>
                         </div>
 
-                        <ul class="sidebar-menu">
-                            <li class="btn-sidebar"><i class="icon">🗂️</i> Tableaux</li>
-                            <li class="btn-sidebar"><i class="icon">👥</i> Membres <span class="plus">+</span></li>
-                            <li class="btn-sidebar"><i class="icon">⚙️</i> Paramètres</li>
-                        </ul>
+                        <div className="sidebar-menu">
+                            <li class="btn-sidebar"><i class='bx  bx-table'></i> Tableaux</li>
+                            <li class="btn-sidebar"><i class='bx  bx-user-plus bx-flip-horizontal'></i> Membres</li>
+                            <li class="btn-sidebar"><i class='bx  bx-cog'></i> Paramètres</li>
+                        </div>
 
                         <div class="premium-card">
                             <h3>Essayez Trello Premium</h3>
                             <p>Profitez du Planificateur, de la mise en miroir des cartes, et bien d'autres avantages !</p>
                             <a href="#" class="btn-trial">Commencer l'essai gratuit</a>
                         </div>
-                        </div>
+                    </div>
 
                 </div>
 
@@ -94,6 +94,7 @@ function Home() {
                                 </button>
                             </div>
 
+                            <Link to="/first-test">
                             <div className='container-card'>
                                 <div className="container-modele-right">
                                     <img src={firsttest} className="modele" alt="First Test" />
@@ -107,6 +108,7 @@ function Home() {
                                     </button>
                                 </div>
                             </div>
+                            </Link>
                         </div>
                         <div className='nav-creation-boards'>
                             <p>Liens</p>
@@ -119,7 +121,7 @@ function Home() {
                         </div>
                     </div>
                 </div> 
-        </div> 
+            </div> 
     </Layout>
   );
 }

@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import capture from '../assets/capture.png'
 import firsttest from '../assets/firsttest.jpg'
 import './Boards.css'
-
 // 1. On crée le composant Layout (le squelette)
 function Layout({ children }) {
   return (
@@ -25,23 +24,23 @@ function Layout({ children }) {
 function Boards() {
   return (
     <Layout>
-        <div className='home-container'>
-                    <div className='sidebar-left'>
+                    <div className='home-container'>
+                        <div className='sidebar-left'>
                             <Link to="/boards">
                                 <button className='btn-sidebar'>
-                                    <i></i>
+                                <i class='bx  bx-table'></i>
                                     <span>Tableaux</span>
                                 </button>
                             </Link>
                             <Link to="/templates">
                                 <button className='btn-sidebar'>
-                                    <i></i>
+                                    <i class='bx  bx-show'></i>
                                     <span>Modeles</span>
                                 </button>
                             </Link>
                             <Link to="/">
                                 <button className='btn-sidebar'>
-                                    <i></i>
+                                    <i class='bx  bx-home'></i>
                                     <span>Acceuil</span>
                                 </button>
                             </Link>
@@ -87,13 +86,13 @@ function Boards() {
                             </div>
                         </div>
         
-                        <div className='sidebar-right'>
+                        <div className='sidebar-last'>
                             <button className='btn-boards'><i class='bx  bx-table'></i>Tableaux</button>
                             <button className='btn-boards'><i class='bx  bx-user'></i> Membres</button>
                             <button className='btn-boards'><i class='bx  bx-cog'></i> Parametres</button>
                             <button className='btn-buy'><button className='btn-icon-buy'><i class='bx  bx-briefcase-alt'></i></button>Acheter</button>
                         </div> 
-                </div> 
+                    </div> 
     </Layout>
   );
 }

@@ -1,0 +1,36 @@
+.modal{
+    width:40% ;
+    height: auto;
+
+    background-color:  #1d2125;
+    border-radius: 5px;
+
+    gap: 5px;
+}
+
+.container-style{
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-photo{
+    display: flex;
+    flex-direction: row;
+
+    width: 150px;
+    height: 50px;
+    border-radius: 5px;
+
+    gap: 5px;
+}
+
+.nav-color{
+    display: flex;
+    flex-direction: row;
+
+    width: 100px;
+    height: 50px;
+    border-radius: 5px;
+
+    gap: 5px;
+}

@@ -1,0 +1,251 @@
+.details-main{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 86vh;
+    margin-top: 28px;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.header-details{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 60px;
+    background: #cfd0d6;
+}
+.nav-right{
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+.nav-left{
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+.container-profil{
+    width: 30px;
+    height: 30px;
+    border-radius: 90%;
+    background-color: #1155cd;
+}
+
+.btn-title-card{
+    width: auto;
+    height: 30px;
+    background-color: transparent;
+    text-align: center;
+    color: #1c2f51;
+    font-size: 20px;
+    font-weight: bolder;
+    border-radius: 4px;
+    padding: 5px;
+}
+.btn-title-card:active{
+    border: 3px solid #e6f4f5;
+}
+.btn-title-card:hover {
+  background-color: #464646;
+}
+.btn-vue{
+    width: auto;
+    height: 30px;
+    background-color: transparent;
+    text-align: center;
+    color: #1c2f51;
+    font-size: 20px;
+    font-weight: bolder;
+    border-radius: 4px;
+    padding: 5px;
+    transform: scale(0.95);
+    border: none;
+}
+.btn-vue:focus,
+.btn-vue:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+.btn-vue:hover {
+  background-color: #464646;
+}
+.btn-vue:active{
+    background-color: #1c2f51;
+    color: white;
+}
+
+
+.container-global{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 15px;
+
+    align-items: center;
+}
+.container-start{
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    margin: 0%;
+    width: 100%;
+    gap: 15px;
+
+    align-items: left;
+    
+    justify-content: center;
+    justify-items: center;
+    align-items: center;
+    align-content: center;
+}
+
+.container-type-one{
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    border-radius: 15px;
+    background: black;
+    width: 35%;
+    height: auto;
+
+    justify-items: center;
+}
+.container-type-two{
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    background: #cfd0d6;
+    width: 35%;
+    height: auto;
+    color:  #1c2f51;
+}
+.first-container{
+    display: flex;
+    flex-direction: row;
+    margin: 10px;
+}
+.btn-working{
+    width: 85%;
+    height: 30px;
+    background-color: transparent;
+    text-align: start;
+}
+.btn-working:active{
+    border: 3px solid #97f7fa;
+    border-radius: 4px;
+}
+.second-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    border-radius: 4px;
+    background: #464646;
+    margin: 10px;
+}
+.nav-text{
+    display: flex;
+    flex-direction: row;
+    border-radius: 4px;
+    background: transparent;
+    gap: 5px;
+}
+.second-container:hover{
+    border: 2px solid white;
+}
+.btn-check{
+    width: 30px;
+    height: 30px;
+    border-radius: 90%;
+    background-color: #94c748;
+    color: #101204;
+    
+    justify-content: center;
+    justify-items: center;
+    align-items: center;
+    align-content: center;
+}
+.text-check{
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+.text-check span{
+    font-size: 13px;
+}
+
+.container-timer{
+    display: flex;
+    flex-direction: row;
+    background-color: #94c748;
+    width: auto;
+    height: 30px;
+    margin: 0%;
+    color: #101204;
+    border-radius: 4px;
+}
+
+.container-end{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    justify-items: center;
+    align-items: center;
+    align-content: center;
+    gap: 5px;
+    background-color: #1d2025;
+    width: 40%;
+    height: 45px;
+    border-radius: 10px;
+}
+
+.btn-end {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  justify-items: center;
+  align-items: center;
+  align-content: center;
+
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #a8a9af;
+  text-align: start;
+  cursor: pointer;
+  margin: 0%;
+  margin-right: 5px;
+  width: auto;
+  height: 30px;
+  gap: 5px;
+  white-space: nowrap;
+}
+.btn-end:hover {
+  background-color: #464646;
+}
+.btn-end:active {
+  background-color: #1c2b42;
+  color:#509df1;
+  transform: scale(0.95);
+  border: none;
+  
+}
+
+.btn-btn-end:focus,
+.btn-btn-end:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.thrirst-container{
+    display: flex;
+    flex-direction:row ;
+    margin: 10px;
+
+    justify-content: center;
+    justify-items: center;
+    align-items: center;
+    align-content: center;
+}

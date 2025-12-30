@@ -1,23 +1,27 @@
-
-  .home-container {
+.home-container {
   display: flex;
   justify-content: center;
   gap: 2px;
   width: 100%;
-  margin-top: 5%;
+  height: 86vh;
+  margin-top: 6.7%;
   background: transparent;
 }
 
 /* Sidebar gauche */
 .sidebar-left {
+  margin-left: 15px;
   width: 250px;
   flex-shrink: 0;
   background: transparent;
   text-align: start;
 }
-
 .sidebar-right {
-  width: 300px;
+  margin-right: 15px;
+  display: flex;
+  flex-direction: row;
+  justify-items: start;
+  width: 250px;
   flex-shrink: 0;
   background: transparent;
 }
@@ -74,7 +78,6 @@
   align-items: start;
   text-align: start;
   font-size: 13px;
-  margin-left: 5px;
 }
 
 /* Section centrale */
@@ -118,42 +121,22 @@
   background-color: #464646;
 }
 
-/* Style de la barre latérale 
-  background-color: #1d2125;
-*/
+/* Style de la barre latérale */
 .sidebar {
   width: 100%;
   color: #9fadbc;
   margin: 0%;
   font-family: sans-serif;
-}
+  background: #1d2125;
+  border-radius: 4px;
+  padding: 15px;
+} 
 
-/* Éléments du menu */
-.btn-sidebar {
-  list-style: none;
-  padding: 8px 12px;
-  border-radius: 5px;
-  margin-bottom: 4px;
-  cursor: pointer;
+.sidebar-menu{
   display: flex;
-  align-items: center;
-  transition: background 0.2s ease;
-}
-
-/* SURVOL (Hover) */
-.btn-sidebar:hover {
-  background-color: #333c44;
-  color: white;
-}
-
-/* CLIC (Active) */
-.btn-sidebar:active {
-  background-color: #444e58;
-}
-
-/* FOCUS (Accessibilité clavier) */
-.btn-sidebar:focus-visible {
-  outline: 2px solid #00c2e0;
+  flex-direction: column;
+  margin-top: 15px;
+  width: 100%;
 }
 
 /* Style de la carte Premium */
