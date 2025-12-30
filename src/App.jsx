@@ -1,12 +1,27 @@
-import UploadTrello  from './components/UploadTrello';
+import { useState } from 'react'
+import './App.css'
+
+import Home from './components/HomeScreen';
+import Boards from './components/Boards';
+import Templates from './components/Templates';
+import DetailsCard  from './components/DetailsCard';
+
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
+  const [count, setCount] = useState(0)
+
   return (
-    <div className="App">
-      <h1>Mon Trello Clone</h1>
-      <UploadTrello />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/boards" element={<Boards />} />
+        <Route path="/templates" element={<Templates />} />
+        <Route path="/b" element={<DetailsCard />} />
+        <Route path="/b/:id" element={<DetailsCard />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
-export default App;
+export default App

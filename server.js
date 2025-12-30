@@ -6,54 +6,138 @@ import dotenv from 'dotenv';
 dotenv.config();
 const app = express();
 
+// --- MIDDLEWARES ---
 app.use(cors()); 
 app.use(express.json()); 
 
+// --- CONNEXION MONGODB ---
 mongoose.connect('mongodb://localhost:27017/trello')
   .then(() => console.log("✅ Connecté à MongoDB !"))
   .catch(err => console.error("❌ Erreur de connexion :", err));
 
-const photoSchema = new mongoose.Schema({
+// --- 1. SCHÉMAS POUR LES FONDS (Modale de création) ---
+const backgroundSchema = new mongoose.Schema({
   title: String,
   imageUrl: String,
-  type: { type: String, default: 'photo' },
+  type: String, // 'photo' ou 'color'
   createdAt: { type: Date, default: Date.now }
 });
 
-// Utilise un nom de Modèle en Majuscule (convention) et force la collection
-const BackgroundPhoto = mongoose.model('BackgroundPhoto', photoSchema, 'background_boards_colors');
+const BackgroundPhoto = mongoose.model('BackgroundPhoto', backgroundSchema, 'background_boards_photos');
+const BackgroundColor = mongoose.model('BackgroundColor', backgroundSchema, 'background_boards_colors');
 
-// --- ROUTE GET ---
-app.get('/api/background_boards_colors', async (req, res) => {
+// --- 2. SCHÉMA POUR LES TABLEAUX (BOARDS) ---
+const boardSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  background: { type: String, required: true }, // L'URL choisie
+  createdAt: { type: Date, default: Date.now }, // Reste fixe
+  updatedAt: { type: Date, default: Date.now }  // Change à chaque consultation
+});
+
+const Board = mongoose.model('Board', boardSchema);
+
+// --- ROUTES POUR LES FONDS (Affichage dans la modale) ---
+
+app.get('/api/background_boards_photos', async (req, res) => {
   try {
-    // Changement du nom de la variable pour éviter le conflit
     const allPhotos = await BackgroundPhoto.find().sort({ createdAt: -1 }); 
     res.json(allPhotos);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+app.get('/api/background_boards_colors', async (req, res) => {
+  try {
+    const allColors = await BackgroundColor.find().sort({ createdAt: -1 }); 
+    res.json(allColors);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+// --- ROUTES POUR LES TABLEAUX (BOARDS) ---
+
+// Créer un nouveau tableau
+app.post('/api/boards', async (req, res) => {
+  try {
+    const newBoard = new Board({
+      title: req.body.title,
+      background: req.body.background
+    });
+    const savedBoard = await newBoard.save();
+    res.status(201).json(savedBoard);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur lors de la création du tableau" });
+  }
+});
+
+// Récupérer TOUS les tableaux (pour la liste générale)
+app.get('/api/boards', async (req, res) => {
+  try {
+    const boards = await Board.find().sort({ createdAt: -1 });
+    res.json(boards);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+// Récupérer les 4 derniers tableaux consultés (Récents)
+app.get('/api/boards/recent', async (req, res) => {
+  try {
+    // On trie par updatedAt (le plus récent en premier) et on limite à 4
+    const recentBoards = await Board.find().sort({ updatedAt: -1 }).limit(4);
+    res.json(recentBoards);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+// Récupérer UN tableau par son ID (ET mettre à jour sa date d'activité)
+app.get('/api/boards/:id', async (req, res) => {
+  try {
+    // findByIdAndUpdate permet de récupérer le tableau et de changer sa date en une seule fois
+    const board = await Board.findByIdAndUpdate(
+      req.params.id, 
+      { updatedAt: Date.now() }, // On met à jour la date d'activité à MAINTENANT
+      { new: true } // Renvoie le tableau mis à jour au frontend
+    );
+
+    if (!board) return res.status(404).json({ message: "Tableau introuvable" });
+    res.json(board);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur lors de la récupération du tableau" });
+  }
+});
+
+// --- SCHÉMA POUR LES LISTES ---
+const listSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  boardId: { type: mongoose.Schema.Types.ObjectId, ref: 'Board', required: true }, // Le lien vers le tableau
+  createdAt: { type: Date, default: Date.now }
+});
+
+const List = mongoose.model('List', listSchema);
+
+// --- ROUTES POUR LES LISTES ---
+
+// 1. Récupérer les listes d'un tableau spécifique
+app.get('/api/lists/:boardId', async (req, res) => {
+  try {
+    const lists = await List.find({ boardId: req.params.boardId });
+    res.json(lists);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// --- ROUTE POST ---
-app.post('/api/background_boards_colors', async (req, res) => {
+// 2. Créer une nouvelle liste
+app.post('/api/lists', async (req, res) => {
   try {
-    const { title, imageUrl, type } = req.body;
-
-    const nouvellePhoto = new BackgroundPhoto({
-      title,
-      imageUrl,
-      type
+    const newList = new List({
+      title: req.body.title,
+      boardId: req.body.boardId
     });
-
-    const photoSauvegardee = await nouvellePhoto.save();
-    console.log("💾 Enregistré dans la NOUVELLE collection :", photoSauvegardee.title);
-    res.status(201).json(photoSauvegardee);
-
+    await newList.save();
+    res.status(201).json(newList);
   } catch (err) {
-    res.status(500).json({ message: "Erreur lors de l'enregistrement" });
+    res.status(500).json({ message: err.message });
   }
 });
 
+// --- DÉMARRAGE DU SERVEUR ---
 const PORT = 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
