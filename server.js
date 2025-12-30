@@ -1,19 +1,18 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const app = express();
 
-// Middlewares
-app.use(cors()); // Autorise React à parler au serveur
-app.use(express.json()); // Permet de lire les données JSON envoyées par React
+app.use(cors()); 
+app.use(express.json()); 
 
-// --- CONNEXION MONGODB ---
 mongoose.connect('mongodb://localhost:27017/trello')
-  .then(() => console.log("Connecté à MongoDB !"))
-  .catch(err => console.log("Erreur de connexion :", err));
+  .then(() => console.log("✅ Connecté à MongoDB !"))
+  .catch(err => console.error("❌ Erreur de connexion :", err));
 
-// --- CRÉATION DU MODÈLE (Le Schéma) ---
 const photoSchema = new mongoose.Schema({
   title: String,
   imageUrl: String,
@@ -21,34 +20,41 @@ const photoSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-const Photo = mongoose.model('Photo', photoSchema);
+// Utilise un nom de Modèle en Majuscule (convention) et force la collection
+const BackgroundPhoto = mongoose.model('BackgroundPhoto', photoSchema, 'background_boards_colors');
 
-// --- LA ROUTE (Le point de contact pour React) ---
-app.post('/api/photos', async (req, res) => {
+// --- ROUTE GET ---
+app.get('/api/background_boards_colors', async (req, res) => {
+  try {
+    // Changement du nom de la variable pour éviter le conflit
+    const allPhotos = await BackgroundPhoto.find().sort({ createdAt: -1 }); 
+    res.json(allPhotos);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// --- ROUTE POST ---
+app.post('/api/background_boards_colors', async (req, res) => {
   try {
     const { title, imageUrl, type } = req.body;
 
-    // On crée l'objet à enregistrer
-    const nouvellePhoto = new Photo({
-      title: title,
-      imageUrl: imageUrl,
-      type: type
+    const nouvellePhoto = new BackgroundPhoto({
+      title,
+      imageUrl,
+      type
     });
 
-    // On sauvegarde dans MongoDB
     const photoSauvegardee = await nouvellePhoto.save();
-    
-    console.log("Photo enregistrée en BDD :", photoSauvegardee.title);
+    console.log("💾 Enregistré dans la NOUVELLE collection :", photoSauvegardee.title);
     res.status(201).json(photoSauvegardee);
 
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: "Erreur lors de l'enregistrement" });
   }
 });
 
-// Lancer le serveur
 const PORT = 5000;
 app.listen(PORT, () => {
-  console.log(`Serveur démarré sur http://localhost:${PORT}`);
+  console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
 });
