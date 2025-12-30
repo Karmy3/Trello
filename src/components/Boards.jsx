@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import capture from '../assets/capture.png'
 import firsttest from '../assets/firsttest.jpg'
 import './Boards.css'
+
 // 1. On crée le composant Layout (le squelette)
 function Layout({ children }) {
   return (
@@ -28,26 +29,26 @@ function Boards() {
                         <div className='sidebar-left'>
                             <Link to="/boards">
                                 <button className='btn-sidebar'>
-                                <i class='bx  bx-table'></i>
+                                <i className='bx  bx-table'></i>
                                     <span>Tableaux</span>
                                 </button>
                             </Link>
                             <Link to="/templates">
                                 <button className='btn-sidebar'>
-                                    <i class='bx  bx-show'></i>
+                                    <i className='bx  bx-show'></i>
                                     <span>Modeles</span>
                                 </button>
                             </Link>
                             <Link to="/">
                                 <button className='btn-sidebar'>
-                                    <i class='bx  bx-home'></i>
+                                    <i className='bx  bx-home'></i>
                                     <span>Acceuil</span>
                                 </button>
                             </Link>
                             <hr />
                             <h3>Espaces de travail</h3>
         
-                            <div class="sidebar">
+                            <div className="sidebar">
                                 <div className='container-combox'>
                                     <div className='logo-e'>
                                         <span>E</span>
@@ -57,16 +58,16 @@ function Boards() {
                                     </div>
                                 </div>
         
-                                <ul class="sidebar-menu">
-                                    <li class="btn-sidebar"><i class="icon">🗂️</i> Tableaux</li>
-                                    <li class="btn-sidebar"><i class="icon">👥</i> Membres <span class="plus">+</span></li>
-                                    <li class="btn-sidebar"><i class="icon">⚙️</i> Paramètres</li>
+                                <ul className="sidebar-menu">
+                                    <li className="btn-sidebar"><i class="className">🗂️</i> Tableaux</li>
+                                    <li className="btn-sidebar"><i class="className">👥</i> Membres <span className="plus">+</span></li>
+                                    <li className="btn-sidebar"><i class="className">⚙️</i> Paramètres</li>
                                 </ul>
         
-                                <div class="premium-card">
+                                <div className="premium-card">
                                     <h3>Essayez Trello Premium</h3>
                                     <p>Profitez du Planificateur, de la mise en miroir des cartes, et bien d'autres avantages !</p>
-                                    <a href="#" class="btn-trial">Commencer l'essai gratuit</a>
+                                    <a href="#" className="btn-trial">Commencer l'essai gratuit</a>
                                 </div>
                                 </div>
         
@@ -87,10 +88,10 @@ function Boards() {
                         </div>
         
                         <div className='sidebar-last'>
-                            <button className='btn-boards'><i class='bx  bx-table'></i>Tableaux</button>
-                            <button className='btn-boards'><i class='bx  bx-user'></i> Membres</button>
-                            <button className='btn-boards'><i class='bx  bx-cog'></i> Parametres</button>
-                            <button className='btn-buy'><button className='btn-icon-buy'><i class='bx  bx-briefcase-alt'></i></button>Acheter</button>
+                            <button className='btn-boards'><i className='bx  bx-table'></i>Tableaux</button>
+                            <button className='btn-boards'><i className='bx  bx-user'></i> Membres</button>
+                            <button className='btn-boards'><i className='bx  bx-cog'></i> Parametres</button>
+                            <div className='btn-buy'><button className='btn-icon-buy'><i className='bx  bx-briefcase-alt'></i></button>Acheter</div>
                         </div> 
                     </div> 
     </Layout>

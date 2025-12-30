@@ -26,26 +26,26 @@ function Templates() {
                 <div className='sidebar-left'>
                     <Link to="/boards">
                         <button className='btn-sidebar'>
-                           <i class='bx  bx-table'></i>
+                           <i className='bx  bx-table'></i>
                             <span>Tableaux</span>
                         </button>
                     </Link>
                     <Link to="/templates">
                         <button className='btn-sidebar'>
-                            <i class='bx  bx-show'></i>
+                            <i className='bx  bx-show'></i>
                             <span>Modeles</span>
                         </button>
                     </Link>
                     <Link to="/">
                         <button className='btn-sidebar'>
-                            <i class='bx  bx-home'></i>
+                            <i className='bx  bx-home'></i>
                             <span>Acceuil</span>
                         </button>
                     </Link>
                     <hr />
                     <h3>Espaces de travail</h3>
 
-                    <div class="sidebar">
+                    <div className="sidebar">
                         <div className='container-combox'>
                             <div className='logo-e'>
                                 <span>E</span>
@@ -55,16 +55,16 @@ function Templates() {
                             </div>
                         </div>
 
-                        <ul class="sidebar-menu">
-                            <li class="btn-sidebar"><i class="icon">🗂️</i> Tableaux</li>
-                            <li class="btn-sidebar"><i class="icon">👥</i> Membres <span class="plus">+</span></li>
-                            <li class="btn-sidebar"><i class="icon">⚙️</i> Paramètres</li>
+                        <ul className="sidebar-menu">
+                            <li className="btn-sidebar"><i className="icon">🗂️</i> Tableaux</li>
+                            <li className="btn-sidebar"><i className="icon">👥</i> Membres <span className="plus">+</span></li>
+                            <li className="btn-sidebar"><i className="icon">⚙️</i> Paramètres</li>
                         </ul>
 
-                        <div class="premium-card">
+                        <div className="premium-card">
                             <h3>Essayez Trello Premium</h3>
                             <p>Profitez du Planificateur, de la mise en miroir des cartes, et bien d'autres avantages !</p>
-                            <a href="#" class="btn-trial">Commencer l'essai gratuit</a>
+                            <a href="#" className="btn-trial">Commencer l'essai gratuit</a>
                         </div>
                     </div>
 

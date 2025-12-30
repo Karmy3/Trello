@@ -2,8 +2,10 @@
 import Header from './Header';
 import { Link } from "react-router-dom";
 import capture from '../assets/capture.png'
-import firsttest from '../assets/firsttest.jpg'
 import './HomeScreen.css'
+
+import { useEffect, useState } from 'react';
+import CreateBoards from './CreateBoards';
 
 // 1. On crée le composant Layout (le squelette)
 function Layout({ children }) {
@@ -20,25 +22,49 @@ function Layout({ children }) {
 
 // 2. On utilise ce Layout dans nos pages
 function Home() {
+    const [searchTerm, setSearchTerm] = useState("");
+    
+    const handleChange = (event) => {
+        setSearchTerm(event.target.value);
+    };
+
+    // --- LES ÉTATS (STATES) ---
+    const [showModal, setShowModal] = useState(false);
+    const [allBoards, setAllBoards] = useState([]);
+    const [recentBoards, setRecentBoards] = useState([]);
+
+    // --- CHARGEMENT DES DONNÉES ---
+    useEffect(() => {
+        // Charger tous les tableaux
+        fetch('http://localhost:5000/api/boards')
+            .then(res => res.json())
+            .then(data => setAllBoards(data));
+
+        // Charger les tableaux récents
+        fetch('http://localhost:5000/api/boards/recent')
+            .then(res => res.json())
+            .then(data => setRecentBoards(data));
+    }, []);
+
   return (
     <Layout>
             <div className='home-container'>
                 <div className='sidebar-left'>
                     <Link to="/boards">
                         <button className='btn-sidebar'>
-                           <i class='bx  bx-table'></i>
+                           <i className='bx  bx-table'></i>
                             <span>Tableaux</span>
                         </button>
                     </Link>
                     <Link to="/templates">
                         <button className='btn-sidebar'>
-                            <i class='bx  bx-show'></i>
+                            <i className ='bx  bx-show'></i>
                             <span>Modeles</span>
                         </button>
                     </Link>
                     <Link to="/">
                         <button className='btn-sidebar'>
-                            <i class='bx  bx-home'></i>
+                            <i className='bx  bx-home'></i>
                             <span>Acceuil</span>
                         </button>
                     </Link>
@@ -56,15 +82,15 @@ function Home() {
                         </div>
 
                         <div className="sidebar-menu">
-                            <li class="btn-sidebar"><i class='bx  bx-table'></i> Tableaux</li>
-                            <li class="btn-sidebar"><i class='bx  bx-user-plus bx-flip-horizontal'></i> Membres</li>
-                            <li class="btn-sidebar"><i class='bx  bx-cog'></i> Paramètres</li>
+                            <li className="btn-sidebar"><i className='bx  bx-table'></i> Tableaux</li>
+                            <li className="btn-sidebar"><i className='bx  bx-user-plus bx-flip-horizontal'></i> Membres</li>
+                            <li className="btn-sidebar"><i className='bx  bx-cog'></i> Paramètres</li>
                         </div>
 
-                        <div class="premium-card">
+                        <div className="premium-card">
                             <h3>Essayez Trello Premium</h3>
                             <p>Profitez du Planificateur, de la mise en miroir des cartes, et bien d'autres avantages !</p>
-                            <a href="#" class="btn-trial">Commencer l'essai gratuit</a>
+                            <a href="#" className="btn-trial">Commencer l'essai gratuit</a>
                         </div>
                     </div>
 
@@ -93,34 +119,52 @@ function Home() {
                                     <span>Recement consultes</span>
                                 </button>
                             </div>
+                            {recentBoards.map(board => (
+                                /* Le Link entoure chaque carte individuellement */
+                                <Link to={`/b/${board._id}`} key={board._id} className="container-card-link">
+                                    <div className="container-card">
+                                        <div className="container-modele-right">
+                                            {/* On affiche directement l'image stockée dans la BD */}
+                                            <img src={board.background} className="modele" alt={board.title} />
+                                        </div>
+                                        
+                                        <div className='container-card-center'>
+                                            <p>
+                                                <strong>{board.title}</strong> 
+                                                <br />
+                                                Espace de travail de Safari BEZARA 
+                                            </p>
+                                        </div>
 
-                            <Link to="/first-test">
-                            <div className='container-card'>
-                                <div className="container-modele-right">
-                                    <img src={firsttest} className="modele" alt="First Test" />
-                                </div>
-                                <div className='container-card-center'>
-                                    <p>first test <br />Espace de travail de Safari BEZARA </p>
-                                </div>
-                                 <div className='container-icon-left'>
+                                        <div className='container-icon-left'>
+                                            <button className='btn-icon-list' onClick={(e) => e.preventDefault()}>
+                                                <i className='bx bx-star'></i> 
+                                            </button>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                                                    </div>
+
+                        {/* Conteneur relatif pour le bouton et la modale */}
+                        <div style={{ position: 'relative', display: 'block' }}>
+                            <div className='nav-creation-boards' onClick={() => setShowModal(!showModal)}>
+                                <p>Liens</p>
+                                <div className='nav-link'>
                                     <button className='btn-icon-list'>
-                                        <i className='bx  bx-star'></i> 
+                                        <i className='bx  bx-plus'></i> 
                                     </button>
+                                    <p>Creer un tableau</p>
                                 </div>
                             </div>
-                            </Link>
+
+                            {/* On passe une fonction pour fermer la modale */}
+                            {showModal && <CreateBoards close={() => setShowModal(false)} />}
+                                
                         </div>
-                        <div className='nav-creation-boards'>
-                            <p>Liens</p>
-                            <div className='nav-link'>
-                                <button className='btn-icon-list'>
-                                    <i className='bx  bx-plus'></i> 
-                                </button>
-                                <p>Creer un tableau</p>
-                            </div>
+
                         </div>
-                    </div>
-                </div> 
+                    </div> 
             </div> 
     </Layout>
   );
