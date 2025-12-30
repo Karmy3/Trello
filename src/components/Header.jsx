@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useState } from 'react';
 import trelloLogo from '../assets/trello.jpg'
 import './Header.css'
+import CreateBoards from './CreateBoards';
 
 function Header(){
     const [searchTerm, setSearchTerm] = useState("");
@@ -9,6 +10,9 @@ function Header(){
     const handleChange = (event) => {
         setSearchTerm(event.target.value);
     };
+
+    const [showModal, setShowModal] = useState(false);
+
     return(
         <header className="main-header">
             <Link to="/boards">
@@ -33,9 +37,17 @@ function Header(){
                         onChange={handleChange}
                     />
                 </div>
-                <button>
-                    Creer
-                </button>
+
+                {/* Conteneur relatif pour le bouton et la modale */}
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <button onClick={() => setShowModal(!showModal)}>
+                        Creer
+                    </button>
+
+                    {/* On passe une fonction pour fermer la modale */}
+                    {showModal && <CreateBoards close={() => setShowModal(false)} />}
+                </div>
+
             </div>
 
             <div className = "container-left">
