@@ -100,7 +100,6 @@
     justify-content: left;
     margin: 0%;
     width: 100%;
-    gap: 15px;
 
     align-items: left;
     
@@ -108,19 +107,22 @@
     align-items: flex-start;
     gap: 10px;
     overflow-x: auto; /* Pour pouvoir scroller horizontalement */
-    padding: 20px;
+    padding: 2.1px;
 }
 
-.container-type-one{
+.container-type-one {
     display: flex;
     flex-direction: column;
-    justify-content: left;
+    /* justify-content: left;  <-- À supprimer, utilisez align-items pour l'horizontale */
     border-radius: 15px;
     background: black;
     width: 35%;
-    height: auto;
+    max-height: 450px;
+    padding: 5px; /* Augmenté à 15px selon ta demande précédente */
+    box-sizing: border-box;
 
-    justify-items: center;
+    overflow-y: auto;  /* Affiche une barre si le contenu dépasse verticalement */
+    overflow-x: hidden; /* Empêche le défilement horizontal inutile */
 }
 
 

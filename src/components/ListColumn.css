@@ -1,8 +1,11 @@
 .card-item-styled{
     background-color: #282e33;
-    width: 100px;
+    width: 260px;
+    height: auto;
     border-radius: 8px;
-    padding: 10px;
+    padding: 5px;
+    margin: 0% 10px;
+    text-align: left;
 }
 .card-item-styled:hover{
     border: 2px solid white;
