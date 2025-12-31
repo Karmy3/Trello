@@ -1,0 +1,9 @@
+.card-item-styled{
+    background-color: #282e33;
+    width: 100px;
+    border-radius: 8px;
+    padding: 10px;
+}
+.card-item-styled:hover{
+    border: 2px solid white;
+}
