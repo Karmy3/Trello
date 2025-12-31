@@ -128,13 +128,10 @@
     border-radius: 15px;
     background: black;
 }
+
 .add-list-placeholder{
-    display: flex;
-    flex-direction: column;
     border-radius: 8px;
     background: #cfd0d6;
-    width: 35%;
-    height: auto;
     color:  #1c2f51;
 }
 .first-container{

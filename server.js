@@ -127,11 +127,47 @@ app.get('/api/lists/:boardId', async (req, res) => {
 app.post('/api/lists', async (req, res) => {
   try {
     const newList = new List({
+      
       title: req.body.title,
       boardId: req.body.boardId
     });
     await newList.save();
     res.status(201).json(newList);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// --- SCHÉMA POUR LES CARTES ---
+const cardSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  listId: { type: mongoose.Schema.Types.ObjectId, ref: 'List', required: true }, // Le lien vers list
+  createdAt: { type: Date, default: Date.now }
+});
+
+const Card = mongoose.model('Card', cardSchema);
+
+// --- ROUTES POUR LES CARTES ---
+
+// 1. Récupérer les cartes d'un list spécifique
+app.get('/api/cards/:listId', async (req, res) => {
+  try {
+    const cards = await Card.find({ listId: req.params.listId });
+    res.json(cards);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// 2. Créer une nouvelle liste
+app.post('/api/cards', async (req, res) => {
+  try {
+    const newCard = new Card({
+      title: req.body.title,
+      listId: req.body.listId
+    });
+    await newCard.save();
+    res.status(201).json(newCard);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
