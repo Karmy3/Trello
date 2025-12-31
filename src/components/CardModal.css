@@ -1,0 +1,92 @@
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6); /* Fond sombre transparent */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Commence un peu vers le haut */
+    padding-top: 50px;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #22272b; /* Gris très foncé Trello */
+    color: #b6c2cf;
+    width: 768px;
+    max-width: 90%;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.modal-title-section { display: flex; gap: 15px; }
+.modal-title-section i { font-size: 24px; margin-top: 5px; }
+.title-text h2 { margin: 0; font-size: 20px; color: #fff; }
+.title-text p { margin: 5px 0; font-size: 14px; }
+
+.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 30px;
+}
+
+.btn-modal-action {
+    background-color: #2c333a;
+    border: none;
+    color: #b6c2cf;
+    padding: 8px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-modal-action:hover { background-color: #3e474f; }
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.description-input {
+    width: 100%;
+    min-height: 80px;
+    background: #2c333a;
+    border: none;
+    color: #fff;
+    padding: 12px;
+    border-radius: 5px;
+    resize: none;
+}
+
+.modal-body {
+    display: grid;
+    grid-template-columns: 3fr 2fr; /* Ratio colonnes comme sur ton image */
+    gap: 30px;
+}
+
+.comment-box {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.comment-box input {
+    flex: 1;
+    background: #2c333a;
+    border: 1px solid #444;
+    padding: 8px;
+    border-radius: 4px;
+    color: white;
+}

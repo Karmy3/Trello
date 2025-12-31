@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './ListColumn.css';
+import CardModal from './CardModal';
 
 function ListColumn({ list, boardId }) {
     const [cards, setCards] = useState([]);
@@ -29,6 +30,8 @@ function ListColumn({ list, boardId }) {
         });
     };
 
+    const [selectedCard, setSelectedCard] = useState(null);
+
     return (
         <div className="container-type-one">
             <div className="first-container">
@@ -40,10 +43,21 @@ function ListColumn({ list, boardId }) {
             {/* Affichage des cartes réelles venant de MongoDB */}
             <div className="cards-area">
                 {cards.map(card => (
-                    <div key={card._id} className="card-item-styled">
+                    <div 
+                        key={card._id} 
+                        className="card-item-styled"
+                        onClick={() => setSelectedCard(card)}
+                    >
                         <span>{card.title}</span>
                     </div>
                 ))}
+
+                {selectedCard && (
+                    <CardModal 
+                        card={selectedCard} 
+                        onClose={() => setSelectedCard(null)} 
+                    />
+                )}
             </div>
 
             {isAddingCards ? (
