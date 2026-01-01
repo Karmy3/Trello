@@ -141,7 +141,34 @@ app.post('/api/lists', async (req, res) => {
 // --- SCHÉMA POUR LES CARTES ---
 const cardSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  listId: { type: mongoose.Schema.Types.ObjectId, ref: 'List', required: true }, // Le lien vers list
+      listId: { type: mongoose.Schema.Types.ObjectId, ref: 'List' },
+      description: { type: String, default: "" },
+  
+      startDate: Date,
+      dueDate: Date,
+      reminder: { type: String, default: "none" },
+      isRecurring: { type: Boolean, default: false },
+      
+      // Stocke les étiquettes (couleur et texte)
+      labels: [{ color: String, text: String }],
+  
+      // Stocke les membres (IDs User)
+      members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  
+      // Commentaires liés aux utilisateurs
+      comments: [{
+          text: String,
+          user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+          createdAt: { type: Date, default: Date.now }
+      }],
+  
+      checklists: [{
+          title: { type: String, default: "Checklist" },
+          items: [{
+              text: String,
+              isDone: { type: Boolean, default: false }
+          }]
+      }],
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -159,15 +186,37 @@ app.get('/api/cards/:listId', async (req, res) => {
   }
 });
 
-// 2. Créer une nouvelle liste
+// 2. Créer une nouvelle carte
 app.post('/api/cards', async (req, res) => {
   try {
     const newCard = new Card({
       title: req.body.title,
-      listId: req.body.listId
+      listId: req.body.listId,
+      labels: [],
+      checklists: [],
+      comments: [] 
     });
     await newCard.save();
     res.status(201).json(newCard);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+// 3. METTRE À JOUR une carte (INDISPENSABLE pour la modal)
+app.put('/api/cards/:id', async (req, res) => {
+  try {
+    // On met à jour la carte avec TOUS les champs envoyés (labels, checklists, etc.)
+    const updatedCard = await Card.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body }, 
+      { new: true } // Pour renvoyer la carte modifiée au frontend
+    );
+
+    if (!updatedCard) {
+      return res.status(404).json({ message: "Carte introuvable" });
+    }
+
+    res.json(updatedCard);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

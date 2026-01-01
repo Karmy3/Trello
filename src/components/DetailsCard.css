@@ -135,7 +135,31 @@
     border-radius: 8px;
     background: #cfd0d6;
     color:  #1c2f51;
+
+    display: flex;
+    justify-content: center;
+    width:400px;
+    height:35px;
+    border: 1px solid transparent;
+    font-size: 1em;
+    margin: 1px;
+    font-family: inherit;
+    background: #cfd0d6;
+    cursor: pointer;
+    transition: border-color 0.25s;
+    color: #1c2b42;
+    font-size: 18px;
+    align-items: center;
+    text-align: center;
 }
+.add-list-placeholder:hover {
+  background-color: #464646;
+}
+.add-list-placeholder:focus,
+.add-list-placeholder:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
 .first-container{
     display: flex;
     flex-direction: row;

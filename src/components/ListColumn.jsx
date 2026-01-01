@@ -6,12 +6,23 @@ function ListColumn({ list, boardId }) {
     const [cards, setCards] = useState([]);
     const [isAddingCards, setIsAddingCards] = useState(false);
     const [cardTitle, setCardTitle] = useState("");
+    const [cardToOpen, setCardToOpen] = useState(null);
 
     useEffect(() => {
         fetch(`http://localhost:5000/api/cards/${list._id}`)
             .then(res => res.json())
             .then(data => setCards(data));
     }, [list._id]);
+
+    // --- CETTE FONCTION MANQUAIT ---
+    const handleCardUpdate = (updatedCard) => {
+        // 1. Met à jour la liste des cartes en arrière-plan
+        setCards(prevCards => prevCards.map(c => 
+            c._id === updatedCard._id ? updatedCard : c
+        ));
+        // 2. Met à jour la carte actuellement ouverte dans la modale
+        setCardToOpen(updatedCard);
+    };
 
     const handleOnSubmitCards = (e) => {
         e.preventDefault();
@@ -30,8 +41,6 @@ function ListColumn({ list, boardId }) {
         });
     };
 
-    const [selectedCard, setSelectedCard] = useState(null);
-
     return (
         <div className="container-type-one">
             <div className="first-container">
@@ -40,22 +49,29 @@ function ListColumn({ list, boardId }) {
                 <div className="btn-icon-list"><i className='bx bx-dots-horizontal-rounded'></i></div>
             </div>
 
-            {/* Affichage des cartes réelles venant de MongoDB */}
             <div className="cards-area">
                 {cards.map(card => (
                     <div 
                         key={card._id} 
-                        className="card-item-styled"
-                        onClick={() => setSelectedCard(card)}
+                        className="card-item-styled" 
+                        onClick={() => setCardToOpen(card)}
                     >
                         <span>{card.title}</span>
+                        {/* Optionnel: Petit indicateur visuel si la carte a des labels */}
+                        <div className="card-mini-labels">
+                            {card.labels?.map((l, i) => (
+                                <div key={i} className="mini-label" style={{backgroundColor: l.color}}></div>
+                            ))}
+                        </div>
                     </div>
                 ))}
 
-                {selectedCard && (
+                {cardToOpen && (
                     <CardModal 
-                        card={selectedCard} 
-                        onClose={() => setSelectedCard(null)} 
+                        card={cardToOpen} 
+                        listTitle={list.title} 
+                        onClose={() => setCardToOpen(null)} 
+                        onUpdate={handleCardUpdate} // ✅ ON AJOUTE ÇA ICI
                     />
                 )}
             </div>
@@ -64,7 +80,7 @@ function ListColumn({ list, boardId }) {
                 <form onSubmit={handleOnSubmitCards} className="add-card-form">
                     <textarea
                         autoFocus
-                        placeholder="Saisissez un titre ou copiez un lien..."
+                        placeholder="Saisissez un titre..."
                         value={cardTitle}
                         onChange={(e) => setCardTitle(e.target.value)}
                     />
@@ -79,7 +95,6 @@ function ListColumn({ list, boardId }) {
                         <i className='bx bx-plus'></i> 
                         <span>Ajouter une carte</span>
                     </div>
-                    <div className="btn-icon-list"><i className='bx bx-images'></i> </div>
                 </div>
             )}
         </div>

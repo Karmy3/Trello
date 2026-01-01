@@ -1,92 +1,497 @@
 .modal-overlay {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6); /* Fond sombre transparent */
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.75);
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Commence un peu vers le haut */
-    padding-top: 50px;
-    z-index: 1000;
+    align-items: flex-start;
+    padding-top: 48px;
+    z-index: 9999;
 }
-
 .modal-content {
-    background-color: #22272b; /* Gris très foncé Trello */
-    color: #b6c2cf;
-    width: 768px;
-    max-width: 90%;
+    background:#242528 ;
+    width: 1000px;
+    max-width: 1000px;
+    max-height: 55%;
     border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    padding: 16px 20px 80px 20px; /* Espace en bas pour la barre flottante */
+    color: #b6c2cf;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
-
+.modal-main-content{
+    background:#242528 ;
+}
+/* Header */
 .modal-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
-.modal-title-section { display: flex; gap: 15px; }
-.modal-title-section i { font-size: 24px; margin-top: 5px; }
-.title-text h2 { margin: 0; font-size: 20px; color: #fff; }
-.title-text p { margin: 5px 0; font-size: 14px; }
+.btn-list-source {
+    background: #2c333a;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
 
-.quick-actions {
+.modal-header-right {
+    display: flex;
+    gap: 15px;
+    font-size: 20px;
+    align-items: center;
+}
+
+.close-icon:hover { color: white; cursor: pointer; }
+
+/* Titre */
+.modal-title-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.modal-title-container i { font-size: 24px; }
+.modal-card-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* Layout Corps */
+.modal-body-layout {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 32px;
+}
+
+.modal-main-content{
+    max-height: 400px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.section-header h3 { margin: 0; font-size: 16px; color: #fff; }
+
+/* Boutons */
+.action-buttons-row {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 30px;
+    margin-bottom: 32px;
 }
 
-.btn-modal-action {
-    background-color: #2c333a;
+.btn-modal {
+    background: #2c333a;
     border: none;
     color: #b6c2cf;
-    padding: 8px 12px;
+    padding: 6px 12px;
     border-radius: 3px;
-    cursor: pointer;
     font-size: 14px;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    cursor: pointer;
 }
 
-.btn-modal-action:hover { background-color: #3e474f; }
+.btn-modal:hover { background: #3e474f; }
 
-.section-title {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.description-input {
+/* Inputs */
+.modal-textarea {
     width: 100%;
-    min-height: 80px;
+    min-height: 56px;
     background: #2c333a;
     border: none;
-    color: #fff;
+    border-radius: 3px;
     padding: 12px;
-    border-radius: 5px;
-    resize: none;
+    color: white;
+    resize: vertical;
 }
 
-.modal-body {
-    display: grid;
-    grid-template-columns: 3fr 2fr; /* Ratio colonnes comme sur ton image */
-    gap: 30px;
-}
-
-.comment-box {
+.comment-input-container {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
 }
 
-.comment-box input {
+.user-avatar-placeholder {
+    width: 32px;
+    height: 32px;
+    background: #444;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.comment-field {
     flex: 1;
     background: #2c333a;
     border: 1px solid #444;
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: white;
+}
+
+/* Footer Flottant (Le menu du bas sur ton image 11/12) */
+.modal-floating-footer {
+    position: absolute;
+    bottom: -70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1d2125;
+    border: 1px solid #444;
+    border-radius: 12px;
+    display: flex;
+    padding: 4px;
+    gap: 4px;
+}
+
+.footer-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.footer-btn.active {
+    background: #2c333a;
+    border-bottom: 2px solid #579dff;
+}
+/* Positionnement des menus surgissants */
+.popover-wrapper {
+    position: relative;
+}
+
+.custom-popover {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #2c333a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    width: 250px;
+    padding: 12px;
+    z-index: 10;
+    margin-top: 5px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+}
+
+.custom-popover h4 {
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.color-option {
+    height: 32px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    padding: 4px 10px;
+    color: #172b4d;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+/* Affichage des badges d'étiquettes dans la modal */
+.active-labels-area {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.label-badge {
+    padding: 4px 12px;
+    border-radius: 4px;
+    color: #172b4d;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.popover-header-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #9fadc0;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 8px;
+}
+
+.date-input-field {
+    width: 100%;
+    background: #22272b;
+    border: 2px solid #444;
+    color: white;
     padding: 8px;
     border-radius: 4px;
+    margin: 10px 0;
+}
+
+.pop-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.btn-save-date {
+    background: #579dff;
+    color: #1d2125;
+    border: none;
+    padding: 8px;
+    border-radius: 3px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-remove-date {
+    background: #2c333a;
+    color: #b6c2cf;
+    border: none;
+    padding: 8px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+/* Badge de date sur la carte */
+.date-display-badge h4 {
+    font-size: 12px;
+    color: #9fadc0;
+    margin-bottom: 8px;
+}
+
+.date-pill {
+    background: #2c333a;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.pop-input-field {
+    width: 100%;
+    background: #22272b;
+    border: 2px solid #579dff; /* Bordure bleue quand on édite comme Trello */
     color: white;
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+
+.checklist-container {
+    margin-top: 24px;
+}
+
+.progress-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.progress-bg {
+    flex: 1;
+    height: 8px;
+    background: #3e474f;
+    border-radius: 4px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #579dff;
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+
+/* Dates BAdges */
+.dates-popover {
+    width: 300px;
+    padding: 12px;
+}
+
+.pop-section {
+    margin-bottom: 16px;
+    
+}
+
+.label-title {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #44546f;
+    margin-bottom: 4px;
+}
+
+.trello-select {
+    width: 100%;
+    padding: 8px;
+    background: #2c333a;
+    border: 2px solid #dfe1e6;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.reminder-info {
+    font-size: 11px;
+    color: #626f86;
+    margin-top: 4px;
+}
+
+.due-date-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.date-input {
+    flex-grow: 1;
+    padding: 6px;
+    border: 2px solid #dfe1e6;
+    border-radius: 3px;
+}
+.dates-display-results{
+    display: flex;
+    flex-direction: row;
+    gap:5px;
+}
+
+
+/* Etiquettes */
+.labels-list-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
+/* Badge de l'étiquette sur la carte */
+.label-pill-large {
+    width: auto;
+    height: 25px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    transition: min-width 0.2s ease, all 0.2s;
+}
+
+/* Quand l'étiquette est réduite (standard Trello) */
+.label-pill-large:not(.expanded) {
+    min-width: 40px;
+    width: 40px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.add-label-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    background: #091e420f;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Grille de sélection dans le popover */
+.labels-grid-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.label-selection-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.color-bar {
+    flex-grow: 1;
+    height: 32px;
+    border-radius: 3px;
+    color: white;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.edit-label-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+/* La grille de couleurs et l'aperçu */
+
+.color-palette-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.color-dot {
+    height: 32px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.color-dot.active {
+    outline: 2px solid #0052cc;
+    outline-offset: 2px;
+}
+
+.preview-box {
+    height: 32px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    color: white;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.pop-buttons-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
 }
