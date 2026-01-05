@@ -179,7 +179,8 @@ const Card = mongoose.model('Card', cardSchema);
 // 1. Récupérer les cartes d'un list spécifique
 app.get('/api/cards/:listId', async (req, res) => {
   try {
-    const cards = await Card.find({ listId: req.params.listId });
+    const cards = await Card.find({ listId: req.params.listId })
+      .populate('members', 'username avatar');
     res.json(cards);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -217,6 +218,22 @@ app.put('/api/cards/:id', async (req, res) => {
     }
 
     res.json(updatedCard);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+// 4. Route pour ajouter un commentaire
+app.post('/api/cards/:id/comments', async (req, res) => {
+  try {
+    const { text, userId } = req.body;
+    const card = await Card.findById(req.params.id);
+    
+    card.comments.push({ text, user: userId });
+    await card.save();
+    
+    // On repopulate pour avoir les infos de l'auteur immédiatement
+    const updatedCard = await Card.findById(req.params.id).populate('comments.user', 'username avatar');
+    res.json(updatedCard.comments);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
