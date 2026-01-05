@@ -15,27 +15,6 @@ function CardModal({ card, listTitle, onClose, onUpdate }) {
     const [reminder, setReminder] = useState(card.reminder || "none");
     const [isRecurring, setIsRecurring] = useState(card.isRecurring || false);
 
-    // Fonction de sauvegarde unique
-    const handleUpdate = async () => {
-        const payload = {
-            startDate: hasStart ? startDate : null,
-            dueDate: dueDate || null,
-            reminder: reminder,
-            isRecurring: isRecurring
-        };
-
-        try {
-            const res = await fetch(`http://localhost:5000/api/cards/${card._id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const updatedData = await res.json();
-            onUpdate(updatedData); // C'est ici que la BD est mise à jour et l'écran rafraîchi
-            setActiveMenu(null);
-        } catch (err) { console.error("Erreur sauvegarde dates:", err); }
-    };
-
     const [isLabelsExpanded, setIsLabelsExpanded] = useState(false);
 
     const [isCreating, setIsCreating] = useState(false); // Pour basculer entre liste et création
@@ -50,6 +29,82 @@ function CardModal({ card, listTitle, onClose, onUpdate }) {
         {c: '#943d73', t: 'Design'},
         {c: '#5794f2', t: 'Backend'}
     ];
+
+    const addLabel = (color, text) => {
+    // Sécurité : on vérifie si l'étiquette existe déjà pour éviter les doublons
+    const exists = card.labels?.some(l => l.color === color && l.text === text);
+
+    const addChecklist = (title) => {
+    // On crée la nouvelle checklist
+    const newChecklist = { 
+        title: title || "Checklist", 
+        items: [] 
+    };
+
+    // On l'ajoute à la liste existante (ou un tableau vide si c'est le premier)
+    const newChecklists = [...(card.checklists || []), newChecklist];
+
+    // On envoie la mise à jour globale
+    handleUpdate({ checklists: newChecklists });
+    };
+
+    const toggleMember = (userId) => {
+    const currentMembers = card.members || [];
+    
+    // On vérifie si l'utilisateur est déjà dans la liste
+    const isAlreadyMember = currentMembers.includes(userId);
+
+    let newMembers;
+    if (isAlreadyMember) {
+        // S'il est là, on le retire (Filter)
+        newMembers = currentMembers.filter(id => id !== userId);
+    } else {
+        // S'il n'est pas là, on l'ajoute (Spread)
+        newMembers = [...currentMembers, userId];
+    }
+
+    // On envoie la mise à jour
+    handleUpdate({ members: newMembers });};
+    
+    // Fonction de sauvegarde unique
+    const handleUpdate = async () => {
+        const payload = {
+            startDate: hasStart ? startDate : null,
+            dueDate: dueDate || null,
+            reminder: reminder,
+            isRecurring: isRecurring,
+
+            description: description,
+
+            // Par défaut on garde ce qui est déjà dans la carte
+            labels: card.labels || [],
+            checklists: card.checklists || [],
+            members: card.members || [],
+            
+            // On écrase par les nouvelles données reçues du bouton
+            ...dataToUpdate
+        };
+
+        try {
+            const res = await fetch(`http://localhost:5000/api/cards/${card._id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const updatedData = await res.json();
+            onUpdate(updatedData); // C'est ici que la BD est mise à jour et l'écran rafraîchi
+            setActiveMenu(null);
+        } catch (err) { 
+            console.error("Erreur sauvegarde dates:", err); 
+        }
+        
+    };
+
+    if (!exists) {
+        const newLabels = [...(card.labels || []), { color, text }];
+        handleUpdate({ labels: newLabels });
+    }
+    };
 
     if (!card) return null;
 
@@ -100,21 +155,19 @@ function CardModal({ card, listTitle, onClose, onUpdate }) {
                                                     <input type="text" className="search-labels" placeholder="Rechercher des étiquettes..." />
                                                     
                                                     <label className="pop-label">Couleurs</label>
+                                                    
                                                     <div className="labels-grid-selection">
                                                         {defaultLabels.map((colorObj, idx) => (
                                                             <div key={idx} className="label-selection-item">
                                                                 <div 
                                                                     className="color-bar" 
                                                                     style={{ background: colorObj.c }}
-                                                                    onClick={() => {
-                                                                        const exists = card.labels.some(l => l.color === colorObj.c && l.text === colorObj.t);
-                                                                        if (!exists) {
-                                                                            handleUpdate({ labels: [...card.labels, { color: colorObj.c, text: colorObj.t }] });
-                                                                        }
-                                                                    }}
+                                                                    // --- ON UTILISE addLabel ICI ---
+                                                                    onClick={() => addLabel(colorObj.c, colorObj.t)}
                                                                 >
                                                                     {colorObj.t}
-                                                                    {card.labels.some(l => l.color === colorObj.c && l.text === colorObj.t) && <i className='bx bx-check'></i>}
+                                                                    {/* Petit check visuel si l'étiquette est déjà présente */}
+                                                                    {card.labels?.some(l => l.color === colorObj.c && l.text === colorObj.t) && <i className='bx bx-check'></i>}
                                                                 </div>
                                                                 <button className="edit-label-btn"><i className='bx bx-pencil'></i></button>
                                                             </div>
@@ -155,7 +208,10 @@ function CardModal({ card, listTitle, onClose, onUpdate }) {
                                                     <div className="pop-buttons-row">
                                                         <button className="btn-save-date" onClick={() => {
                                                             if(newLabelText.trim()) {
-                                                                handleUpdate({ labels: [...card.labels, { color: selectedColor, text: newLabelText }] });
+                                                                // --- ON UTILISE addLabel ICI AUSSI ---
+                                                                addLabel(selectedColor, newLabelText);
+                                                                
+                                                                // On réinitialise après l'ajout
                                                                 setIsCreating(false);
                                                                 setNewLabelText("");
                                                             }
@@ -221,7 +277,7 @@ function CardModal({ card, listTitle, onClose, onUpdate }) {
                                             </div>
 
                                             <div className="pop-buttons">
-                                                <button className="btn-save-date" onClick={handleSaveDates}>Enregistrer</button>
+                                                <button className="btn-save-date" onClick={handleUpdate}>Enregistrer</button>
                                                 <button className="btn-remove-date" onClick={() => setActiveMenu(null)}>Annuler</button>
                                             </div>
                                         </div>
@@ -240,17 +296,22 @@ function CardModal({ card, listTitle, onClose, onUpdate }) {
                                         <div className="popover-header-title">Ajouter une checklist <i className='bx bx-x' onClick={() => setActiveMenu(null)}></i></div>
                                         <div className="pop-content">
                                             <label className="pop-label">Titre</label>
-                                            <input 
+                                           <input 
                                                 type="text" 
                                                 className="pop-input-field" 
-                                                value={checklistTitle}
-                                                onChange={(e) => setChecklistTitle(e.target.value)}
+                                                placeholder="Checklist"
+                                                autoFocus
+                                                id="checklist-title-input" // On utilise un ID pour récupérer la valeur facilement
                                             />
+                                            
                                             <button 
                                                 className="btn-save-date" 
                                                 onClick={() => {
-                                                    handleUpdate({ checklists: [...card.checklists, { title: checklistTitle, items: [] }] });
-                                                    setActiveMenu(null);
+                                                    const input = document.getElementById('checklist-title-input');
+                                                    if (input.value.trim()) {
+                                                        addChecklist(input.value);
+                                                        setActiveMenu(null); // On ferme le menu
+                                                    }
                                                 }}
                                             >
                                                 Ajouter
@@ -260,7 +321,101 @@ function CardModal({ card, listTitle, onClose, onUpdate }) {
                                 )}
                             </div>
 
-                            <button className="btn-modal"><i className='bx bx-user'></i> Membres</button>
+                            {/* BOUTON MEMBRES */}
+                            <div className="popover-wrapper">
+                            <button className="btn-modal" onClick={() => setActiveMenu(activeMenu === 'members' ? null : 'members')}>
+                                <i className='bx bx-user'></i> Membres
+                            </button>
+                            {/*
+                            {activeMenu === 'members' && (
+                                <div className="custom-popover members-popover">
+                                <div className="popover-header-title">
+                                    Membres
+                                    <i className='bx bx-x close-icon' onClick={() => setActiveMenu(null)}></i>
+                                </div>
+                                <div className="pop-content">
+                                    <input type="text" className="search-labels" placeholder="Rechercher des membres..." />
+                                    <label className="pop-label">Membres du tableau</label>
+                                    
+                                    <div className="members-list-selection">
+                                    boardMembers doit contenir la liste de tous les utilisateurs du projet 
+                                    {boardMembers?.map((user) => (
+                                        <div 
+                                        key={user._id} 
+                                        className="member-selection-item"
+                                        onClick={() => toggleMember(user._id)}
+                                        >
+                                        <div className="member-avatar-circle">
+                                            {user.username.substring(0, 2).toUpperCase()}
+                                        </div>
+                                        <span className="member-name">{user.username}</span>
+                                        {/* Coche bleue si membre déjà présent *
+                                        {card.members?.some(m => (m._id || m) === user._id) && (
+                                            <i className='bx bx-check check-member'></i>
+                                        )}
+                                        </div>
+                                    ))}
+                                    </div>
+                                </div>
+                                </div>
+                            )}
+
+                            */}
+
+                            {activeMenu === 'members' && (
+                                <div className="custom-popover members-popover">
+                                    <div className="popover-header-title">
+                                    Membres
+                                    <i className='bx bx-x close-icon' onClick={() => setActiveMenu(null)}></i>
+                                    </div>
+                                    
+                                    <div className="pop-content">
+                                    {/* Champ de recherche */}
+                                    <input type="text" className="pop-input-field" placeholder="Rechercher des membres" autoFocus />
+                                    
+                                    <div className="members-section-list">
+                                        <label className="pop-label">Membres du tableau</label>
+                                        {boardMembers.map((user) => {
+                                        const isMember = card.members?.some(m => (m._id || m) === user._id);
+                                        return (
+                                            <div key={user._id} className="member-item" onClick={() => toggleMember(user._id)}>
+                                            <div className="member-avatar-small">
+                                                {user.username.substring(0, 2).toUpperCase()}
+                                            </div>
+                                            <span className="member-name">{user.username}</span>
+                                            {/* On affiche la coche si l'utilisateur est déjà membre */}
+                                            {isMember && <i className='bx bx-check'></i>}
+                                            </div>
+                                        );
+                                        })}
+                                    </div>
+                                    </div>
+                                </div>
+                                )}
+
+                            </div>
+                        </div>
+
+                        {/* AFFICHAGE */}
+                        {/* Section Membres en haut de la modale */}
+                        <div className="modal-top-section">
+                        {card.members?.length > 0 && (
+                            <div className="members-display">
+                            <h3 className="section-subtitle">Membres</h3>
+                            <div className="members-list">
+                                {card.members.map((member, idx) => (
+                                <div key={idx} className="member-avatar" title={member.username}>
+                                    {/* Les initiales dans un cercle */}
+                                    {member.username?.substring(0, 2).toUpperCase()}
+                                </div>
+                                ))}
+                                {/* Le bouton "+" pour ouvrir le menu */}
+                                <button className="add-member-btn" onClick={() => setActiveMenu('members')}>
+                                <i className='bx bx-plus'></i>
+                                </button>
+                            </div>
+                            </div>
+                        )}
                         </div>
 
                         {/* Affichage des étiquettes actives sur la carte */}

@@ -495,3 +495,107 @@
     justify-content: space-between;
     margin-top: 10px;
 }
+
+/* Membres */
+/* Les avatars circulaires */
+.member-avatar, .member-avatar-small {
+    width: 32px;
+    height: 32px;
+    background-color: #dfe1e6; /* Gris Trello */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* L'élément de liste dans le popover */
+.member-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.member-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.member-name {
+    margin-left: 10px;
+    flex-grow: 1;
+}
+/*************************/
+/*****SUGGESTIONS*********/
+/*************************/
+.member-checkmark {
+    font-size: 16px;
+    color: #0052cc;
+}
+.member-avatar-small {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+}
+.member-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #2c333a;
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-size: 12px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+}
+.member-badge i {
+    font-size: 14px;
+    color: #579dff;
+}
+.member-badge:hover {
+    background: #3e474f;
+    cursor: pointer;
+}
+.member-badge span {
+    color: #b6c2cf;
+    font-weight: 500;
+}
+.member-badges-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+/* Styles pour le popover des membres */
+.members-popover {
+    width: 300px;
+    padding: 12px;
+}
+.members-popover .popover-header-title {
+    margin-bottom: 12px;
+}
+.members-popover .member-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+.members-popover .member-item {
+    margin-bottom: 8px;
+}
+.members-popover .member-item:last-child {
+    margin-bottom: 0;
+}
+/* Styles pour le badge des membres en haut de la modale */
+.modal-top-section .member-avatar-small {
+    margin-right: 6px;
+}
+.member-avatar-small:hover {
+    outline: 2px solid #579dff;
+    outline-offset: 2px;
+}
+.member-avatar-small.active {
+    outline: 2px solid #0052cc;
+    outline-offset: 2px;
+}

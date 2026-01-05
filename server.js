@@ -210,7 +210,7 @@ app.put('/api/cards/:id', async (req, res) => {
       req.params.id,
       { $set: req.body }, 
       { new: true } // Pour renvoyer la carte modifiée au frontend
-    );
+    ).populate('members', 'username avatar');
 
     if (!updatedCard) {
       return res.status(404).json({ message: "Carte introuvable" });

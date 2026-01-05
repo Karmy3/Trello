@@ -5,7 +5,7 @@ function UploadTrello() {
 
   // On récupère les variables Vite
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = import.meta.env.VITE_CLOUDINARY_PRESET_COLOR;
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_PRESET_PHOTO;
 
   const handleFileChange = (e) => {
     setImage(e.target.files[0]);
@@ -35,7 +35,7 @@ function UploadTrello() {
       console.log("Image sur Cloudinary :", linkCloudinary);
 
       // --- ÉTAPE 2 : ENVOI À  SERVEUR NODE/MONGODB ---
-      const mongoResponse = await fetch("http://localhost:5000/api/background_boards_colors", { 
+      const mongoResponse = await fetch("http://localhost:5000/api/background_boards_photos", { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
