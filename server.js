@@ -3,6 +3,9 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
 dotenv.config();
 const app = express();
 
@@ -238,6 +241,80 @@ app.post('/api/cards/:id/comments', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+/* Schéma User */
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  avatar: { type: String, default: "" }
+});
+
+const User = mongoose.model('User', userSchema);
+// --- ROUTES POUR LES UTILISATEURS --
+// ROUTE D'INSCRIPTION (Register)
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    // ... hachage du mot de passe ...
+    const newUser = new User({ username, email, password: hashedPassword });
+    await newUser.save();
+
+    // ON GÉNÈRE LE TOKEN TOUT DE SUITE
+    const token = jwt.sign({ id: newUser._id }, "SECRET_KEY_TRELLO", { expiresIn: '1d' });
+    
+    // ON RENVOIE LES INFOS COMME POUR LE LOGIN
+    res.status(201).json({ 
+      token, 
+      user: { id: newUser._id, username: newUser.username, email: newUser.email } 
+    });
+  } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+// ROUTE DE CONNEXION (Login)
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "Utilisateur non trouvé" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Mot de passe incorrect" });
+
+    // On crée un Token de session
+    const token = jwt.sign({ id: user._id }, "SECRET_KEY_TRELLO", { expiresIn: '1d' });
+    res.json({ token, user: { id: user._id, username: user.username, email: user.email } });
+  } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+// 1. Créer un nouvel utilisateur (Inscription)
+app.post('/api/users', async (req, res) => {
+  try {
+    const newUser = new User({
+      username: req.body.username,
+      email: req.body.email,
+      password: req.body.password,
+      avatar: req.body.avatar
+    });
+    await newUser.save();
+    res.status(201).json(newUser);
+  }
+  catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// 2. Récupérer un utilisateur par son ID
+app.get('/api/users/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password'); // Ne pas renvoyer le mot de passe
+    if (!user) return res.status(404).json({ message: "Utilisateur introuvable" });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 
 // --- DÉMARRAGE DU SERVEUR ---
 const PORT = 5000;

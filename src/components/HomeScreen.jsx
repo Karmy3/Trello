@@ -8,10 +8,10 @@ import { useEffect, useState } from 'react';
 import CreateBoards from './CreateBoards';
 
 // 1. On crée le composant Layout (le squelette)
-function Layout({ children }) {
+function Layout({ children, user, onLogout }) {
   return (
-    <div className="trello-app">
-      <Header />  
+    <div className="trello-app"> 
+      <Header user={user} onLogout={onLogout} />
       <main>
         {/* C'est ici que le contenu de la page sera injecté */}
         {children}
@@ -21,7 +21,7 @@ function Layout({ children }) {
 }
 
 // 2. On utilise ce Layout dans nos pages
-function Home() {
+function Home({ user, onLogout }) {
     const [searchTerm, setSearchTerm] = useState("");
     
     const handleChange = (event) => {
@@ -47,7 +47,7 @@ function Home() {
     }, []);
 
   return (
-    <Layout>
+    <Layout user={user} onLogout={onLogout}>
             <div className='home-container'>
                 <div className='sidebar-left'>
                     <Link to="/boards">

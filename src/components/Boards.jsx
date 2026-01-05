@@ -6,11 +6,11 @@ import firsttest from '../assets/firsttest.jpg'
 import './Boards.css'
 
 // 1. On crée le composant Layout (le squelette)
-function Layout({ children }) {
+function Layout({ children, user, onLogout }) {
   return (
     <div className="trello-app">
       <nav>
-        <Header />
+        <Header user={user} onLogout={onLogout} />
       </nav>
       
       <main>
@@ -22,9 +22,9 @@ function Layout({ children }) {
 }
 
 // 2. On utilise ce Layout dans nos pages
-function Boards() {
+function Boards({ user, onLogout }) {
   return (
-    <Layout>
+    <Layout user={user} onLogout={onLogout}>
                     <div className='home-container'>
                         <div className='sidebar-left'>
                             <Link to="/boards">
