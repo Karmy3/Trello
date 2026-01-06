@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
 import './CardModal.css';
 
-function CardModal({ card, listTitle, onClose, onUpdate }) {
+function CardModal({ card, listTitle, onClose, onUpdate, currentUser, boardMembers = [], user, onLogout }) {
     
     // États pour gérer l'ouverture des petits menus
     const [activeMenu, setActiveMenu] = useState(null); // 'labels', 'members', 'dates', etc.
@@ -24,6 +24,20 @@ function CardModal({ card, listTitle, onClose, onUpdate }) {
     const [isEditingComment, setIsEditingComment] = useState(false);
     const [newCommentText, setNewCommentText] = useState("");
 
+    const [allUsers, setAllUsers] = useState([]); // Pour stocker tout le monde
+    useEffect(() => {
+        const fetchAllUsers = async () => {
+            try {
+                const res = await fetch('http://localhost:5000/api/users');
+                const data = await res.json();
+                setAllUsers(data); 
+            } catch (err) {
+                console.error("Erreur chargement utilisateurs:", err);
+            }
+        };
+        fetchAllUsers();
+    }, []);
+
     // La liste de tes exemplaires (Design System)
     const defaultLabels = [
         {c: '#4bce97', t: 'Terminé'}, 
@@ -33,77 +47,20 @@ function CardModal({ card, listTitle, onClose, onUpdate }) {
         {c: '#5794f2', t: 'Backend'}
     ];
 
-    const addLabel = (color, text) => {
-    // Sécurité : on vérifie si l'étiquette existe déjà pour éviter les doublons
-    const exists = card.labels?.some(l => l.color === color && l.text === text);
-
-    const addChecklist = (title) => {
-    // On crée la nouvelle checklist
-    const newChecklist = { 
-        title: title || "Checklist", 
-        items: [] 
-    };
-
-    // On l'ajoute à la liste existante (ou un tableau vide si c'est le premier)
-    const newChecklists = [...(card.checklists || []), newChecklist];
-
-    // On envoie la mise à jour globale
-    handleUpdate({ checklists: newChecklists });
-    };
-
-    const toggleMember = (userId) => {
-        const currentMembers = card.members || [];
-    
-        // On vérifie si l'utilisateur est déjà dans la liste
-        const isAlreadyMember = currentMembers.includes(userId);
-
-        let newMembers;
-        if (isAlreadyMember) {
-            // S'il est là, on le retire (Filter)
-            newMembers = currentMembers.filter(id => id !== userId);
-        } else {
-            // S'il n'est pas là, on l'ajoute (Spread)
-            newMembers = [...currentMembers, userId];
-        }
-
-        // On envoie la mise à jour
-        handleUpdate({ members: newMembers });
-    };
-
-    const addComment = async () => {
-        if (!newCommentText.trim()) return;
-        
-        const res = await fetch(`http://localhost:5000/api/cards/${card._id}/comments`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-            text: newCommentText, 
-            userId: currentUser._id // L'utilisateur connecté
-            })
-        });
-        
-        const updatedComments = await res.json();
-        onUpdate({ ...card, comments: updatedComments });
-        setNewCommentText(""); // Vide le champ après l'envoi
-    };
-    
     // Fonction de sauvegarde unique
-    const handleUpdate = async () => {
+
+    const handleUpdate = async (manualUpdates = {}) => { // On accepte un objet de mise à jour
         const payload = {
             startDate: hasStart ? startDate : null,
             dueDate: dueDate || null,
             reminder: reminder,
             isRecurring: isRecurring,
-
             description: description,
-
-            // Par défaut on garde ce qui est déjà dans la carte
             labels: card.labels || [],
             checklists: card.checklists || [],
             members: card.members || [],
             
-            // On écrase par les nouvelles données reçues du bouton
-            ...dataToUpdate
+            ...manualUpdates // On utilise les données passées en argument ici
         };
 
         try {
@@ -113,19 +70,97 @@ function CardModal({ card, listTitle, onClose, onUpdate }) {
                 body: JSON.stringify(payload)
             });
             const updatedData = await res.json();
-            onUpdate(updatedData); // C'est ici que la BD est mise à jour et l'écran rafraîchi
+            onUpdate(updatedData);
             setActiveMenu(null);
         } catch (err) { 
-            console.error("Erreur sauvegarde dates:", err); 
+            console.error("Erreur sauvegarde:", err); 
         }
-        
     };
 
-    if (!exists) {
+    const addLabel = (color, text) => {
+        // Sécurité : on vérifie si l'étiquette existe déjà pour éviter les doublons
+        const exists = card.labels?.some(l => l.color === color && l.text === text);
+        if (exists) return;
         const newLabels = [...(card.labels || []), { color, text }];
         handleUpdate({ labels: newLabels });
-    }
     };
+
+    const addChecklist = (title) => {
+        // On crée la nouvelle checklist
+        const newChecklist = { 
+            title: title || "Checklist", 
+            items: [] 
+        };
+
+        // On l'ajoute à la liste existante (ou un tableau vide si c'est le premier)
+        const newChecklists = [...(card.checklists || []), newChecklist];
+
+        // On envoie la mise à jour globale
+        handleUpdate({ checklists: newChecklists });
+    };
+
+    const toggleMember = (userId) => {
+        console.log("ID de l'utilisateur cliqué :", userId);
+
+        // 1. On récupère les membres actuels (soit une liste d'IDs, soit une liste d'objets)
+        const currentMembers = card.members || [];
+
+        // 2. On vérifie si l'ID est déjà présent (on compare l'ID pur)
+        const isAlreadyMember = currentMembers.some(m => {
+            const idToCompare = m._id ? m._id : m; // Gère si c'est un objet ou juste un ID string
+            return idToCompare === userId;
+        });
+
+        let newMembers;
+        if (isAlreadyMember) {
+            // On retire l'utilisateur
+            newMembers = currentMembers.filter(m => (m._id ? m._id : m) !== userId);
+        } else {
+            // On ajoute l'ID de l'utilisateur
+            newMembers = [...currentMembers, userId];
+        }
+
+        // 3. On envoie la mise à jour à handleUpdate
+        handleUpdate({ members: newMembers });
+    };
+
+    const addComment = async () => {
+        // On récupère l'user juste avant l'envoi pour être sûr
+        const user = JSON.parse(localStorage.getItem('user'));
+
+        const userId = user?._id || user?.id;
+
+        if (!userId) {
+            alert("Session expirée ou utilisateur non trouvé. Veuillez vous reconnecter.");
+            return;
+        }
+
+        try {
+            const res = await fetch(`http://localhost:5000/api/cards/${card._id}/comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    text: newCommentText, 
+                    userId: userId
+                })
+            });
+
+            if (!res.ok) throw new Error("Erreur lors de l'envoi du commentaire");
+
+            const updatedCard = await res.json();
+            
+            // On met à jour l'état global avec la nouvelle carte
+            onUpdate(updatedCard); 
+            
+            // On vide le champ texte
+            setNewCommentText(""); 
+            setIsEditingComment(false); // On ferme l'éditeur
+        } catch (err) {
+            console.error("Erreur addComment:", err);
+        }
+    };
+
+    //console.log("Contenu des membres de la carte :", card.members);
 
     if (!card) return null;
 
@@ -396,7 +431,7 @@ function CardModal({ card, listTitle, onClose, onUpdate }) {
                                     
                                     <div className="members-section-list">
                                         <label className="pop-label">Membres du tableau</label>
-                                        {boardMembers.map((user) => {
+                                        {allUsers.map((user) => {
                                         const isMember = card.members?.some(m => (m._id || m) === user._id);
                                         return (
                                             <div key={user._id} className="member-item" onClick={() => toggleMember(user._id)}>
@@ -542,7 +577,9 @@ function CardModal({ card, listTitle, onClose, onUpdate }) {
                         </div>
                         <div className="comment-input-container">
                             <div className="comment-input-area">
-                                <div className="member-avatar-circle">SB</div>
+                                <div className="member-avatar-circle">
+                                    {JSON.parse(localStorage.getItem('user'))?.username?.substring(0, 2).toUpperCase() || "U"}
+                                </div>
                                 
                                 <div className="comment-editor-container">
                                 <textarea 

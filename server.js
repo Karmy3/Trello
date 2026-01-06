@@ -229,15 +229,15 @@ app.put('/api/cards/:id', async (req, res) => {
 app.post('/api/cards/:id/comments', async (req, res) => {
   try {
     const { text, userId } = req.body;
-    const card = await Card.findById(req.params.id);
-    
-    card.comments.push({ text, user: userId });
-    await card.save();
-    
-    // On repopulate pour avoir les infos de l'auteur immédiatement
-    const updatedCard = await Card.findById(req.params.id).populate('comments.user', 'username avatar');
-    res.json(updatedCard.comments);
-  } catch (err) {
+    // On ajoute le commentaire et on récupère la carte peuplée en une fois
+    const card = await Card.findByIdAndUpdate(
+      req.params.id,
+      { $push: { comments: { text, user: userId } } },
+      { new: true }
+    ).populate('comments.user', 'username avatar').populate('members', 'username avatar');
+
+    res.json(card); // ✅ Renvoie la CARTE entière
+  } catch (err) { 
     res.status(500).json({ message: err.message });
   }
 });
@@ -269,6 +269,16 @@ app.post('/api/auth/register', async (req, res) => {
       user: { id: newUser._id, username: newUser.username, email: newUser.email } 
     });
   } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+// Récupérer TOUS les utilisateurs pour les proposer dans la modale
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await User.find().select('username avatar _id');
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 // ROUTE DE CONNEXION (Login)
