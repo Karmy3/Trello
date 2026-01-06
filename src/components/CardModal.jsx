@@ -1,12 +1,11 @@
 import React, { useState , useEffect} from 'react';
 import './CardModal.css';
 
-function CardModal({ card, listTitle, onClose, onUpdate, currentUser, boardMembers = [], user, onLogout }) {
+function CardModal({ card, listTitle, onClose, onUpdate}) {
     
     // États pour gérer l'ouverture des petits menus
     const [activeMenu, setActiveMenu] = useState(null); // 'labels', 'members', 'dates', etc.
     const [description, setDescription] = useState(card.description || "");
-    const [checklistTitle, setChecklistTitle] = useState("Checklist");
     
     // --- SYNCHRONISATION DES ÉTATS ---
     const [hasStart, setHasStart] = useState(!!card.startDate);
@@ -23,8 +22,14 @@ function CardModal({ card, listTitle, onClose, onUpdate, currentUser, boardMembe
 
     const [isEditingComment, setIsEditingComment] = useState(false);
     const [newCommentText, setNewCommentText] = useState("");
+    const [editingCommentId, setEditingCommentId] = useState(null); // Stocke l'ID du commentaire en cours d'édit
+    const [editText, setEditText] = useState(""); // Stocke le texte temporaire pendant l'édition
 
     const [allUsers, setAllUsers] = useState([]); // Pour stocker tout le monde
+
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    const currentUserId = currentUser?._id || currentUser?.id;
+
     useEffect(() => {
         const fetchAllUsers = async () => {
             try {
@@ -159,8 +164,39 @@ function CardModal({ card, listTitle, onClose, onUpdate, currentUser, boardMembe
             console.error("Erreur addComment:", err);
         }
     };
+    const updateComment = async (commentId) => {
+        if (!editText.trim()) return;
 
-    //console.log("Contenu des membres de la carte :", card.members);
+        try {
+            const res = await fetch(`http://localhost:5000/api/cards/${card._id}/comments/${commentId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: editText })
+            });
+
+            if (!res.ok) throw new Error("Erreur lors de la modification");
+
+            const updatedCard = await res.json();
+            onUpdate(updatedCard); // Met à jour l'affichage global
+            setEditingCommentId(null); // Ferme le mode édition
+            setEditText(""); // Réinitialise le texte
+        } catch (err) {
+            console.error("Erreur updateComment:", err);
+        }
+    };
+    const deleteComment = async (commentId) => {
+        if (!window.confirm("Supprimer ce commentaire ?")) return;
+
+        try {
+            const res = await fetch(`http://localhost:5000/api/cards/${card._id}/comments/${commentId}`, {
+                method: 'DELETE'
+            });
+            const updatedCard = await res.json();
+            onUpdate(updatedCard);
+        } catch (err) {
+            console.error("Erreur suppression:", err);
+        }
+    };
 
     if (!card) return null;
 
@@ -621,36 +657,72 @@ function CardModal({ card, listTitle, onClose, onUpdate, currentUser, boardMembe
 
                         {/* LISTE DES COMMENTAIRES */}
                         <div className="comments-list">
-                            {card.comments?.slice().reverse().map((comment, index) => (
-                                <div key={index} className="comment-item">
-                                    {/* Avatar à gauche comme dans la vidéo */}
-                                    <div className="member-avatar-circle">
-                                        {comment.user?.username?.substring(0, 2).toUpperCase() || "U"}
-                                    </div>
-                                    
-                                    <div className="comment-content">
-                                        <div className="comment-header">
-                                            {/* Nom de l'auteur en gras et date à côté */}
-                                            <span className="comment-author-name">{comment.user?.username}</span>
-                                            <span className="comment-date">
-                                                {new Date(comment.createdAt).toLocaleString()}
-                                            </span>
-                                        </div>
+                            {card.comments?.slice().reverse().map((comment, index) => {
+                                const isAuthor = (comment.user?._id || comment.user) === currentUserId;
 
-                                        {/* Bulle de texte du message */}
-                                        <div className="comment-text-bubble">
-                                            {comment.text}
+                                return (
+                                    <div key={comment._id || index} className="comment-item">
+                                        {/* Avatar à gauche comme dans la vidéo */}
+                                        <div className="member-avatar-circle">
+                                            {comment.user?.username?.substring(0, 2).toUpperCase() || "U"}
                                         </div>
+                                        
+                                        <div className="comment-content">
+                                            <div className="comment-header">
+                                                {/* Nom de l'auteur en gras et date à côté */}
+                                                <span className="comment-author-name">{comment.user?.username}</span>
+                                                <span className="comment-date">
+                                                    {new Date(comment.createdAt).toLocaleString()}
+                                                </span>
+                                            </div>
+                                            {/* MODE ÉDITION ou MODE LECTURE */}
+                                            {editingCommentId === comment._id ? (
+                                                <div className="edit-comment-container">
+                                                    <textarea 
+                                                        className="comment-edit-textarea"
+                                                        value={editText}
+                                                        onChange={(e) => setEditText(e.target.value)}
+                                                        autoFocus
+                                                    />
+                                                    <div className="edit-buttons">
+                                                        <button className="btn-save-edit" onClick={() => updateComment(comment._id)}>Enregistrer</button>
+                                                        <button className="btn-cancel-edit" onClick={() => setEditingCommentId(null)}>Annuler</button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="comment-text-bubble">
+                                                    {comment.text}
+                                                </div>
+                                            )}
 
-                                        {/* Liens d'actions visibles sous le message */}
-                                        <div className="comment-actions">
-                                            <span className="action-link">Modifier</span>
-                                            <span className="action-separator"> - </span>
-                                            <span className="action-link">Supprimer</span>
+                                            {/* Liens d'actions visibles sous le message */}
+                                            {/* SEUL l'auteur voit ces boutons */}
+                                            {isAuthor && (
+                                                <div className="comment-actions">
+                                                    <span 
+                                                        className="action-link"
+                                                        onClick={() => {
+                                                            setEditingCommentId(comment._id);
+                                                            setEditText(comment.text); // On pré-remplit avec l'ancien texte
+                                                        }}
+                                                    >
+                                                        Modifier
+                                                    </span>
+
+                                                    <span className="action-separator"> - </span>
+                                                    <span
+                                                        className="action-link" 
+                                                        onClick={() => deleteComment(comment._id)}
+                                                        style={{ color: 'red', cursor: 'pointer' }}
+                                                    >
+                                                        Supprimer
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

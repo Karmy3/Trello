@@ -241,8 +241,41 @@ app.post('/api/cards/:id/comments', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+// SUPPRIMER un commentaire
+app.delete('/api/cards/:cardId/comments/:commentId', async (req, res) => {
+    try {
+        const { cardId, commentId } = req.params;
+        const card = await Card.findByIdAndUpdate(
+            cardId,
+            { $pull: { comments: { _id: commentId } } },
+            { new: true }
+        ).populate('comments.user', 'username avatar').populate('members', 'username avatar');
+        
+        res.json(card);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
-/* Schéma User */
+// MODIFIER un commentaire
+app.put('/api/cards/:cardId/comments/:commentId', async (req, res) => {
+    try {
+        const { cardId, commentId } = req.params;
+        const { text } = req.body;
+        
+        const card = await Card.findOneAndUpdate(
+            { _id: cardId, "comments._id": commentId },
+            { $set: { "comments.$.text": text } },
+            { new: true }
+        ).populate('comments.user', 'username avatar').populate('members', 'username avatar');
+
+        res.json(card);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// --- SCHÉMA POUR LES UTILISATEURS ---
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
