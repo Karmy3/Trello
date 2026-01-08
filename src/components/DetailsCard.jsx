@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ListColumn from './ListColumn'; 
 
-function Layout({ children }) {
+function Layout({ children, user, onLogout }) {
     return (
-        <div className="trello-app">
-            <Header />  
+        <div className="trello-app"> 
+            <Header user={user} onLogout={onLogout} />
             <main>{children}</main>
         </div>
     );

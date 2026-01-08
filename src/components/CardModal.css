@@ -47,6 +47,8 @@
 
 .close-icon:hover { color: white; cursor: pointer; }
 
+
+
 /* Titre */
 .modal-title-container {
     display: flex;
@@ -719,4 +721,204 @@
 }
 .comment-edit-area .btn-cancel-edit:hover {
     background: #3e474f;
+}
+
+
+
+/* Ajout d'éléments à la carte  */
+.check-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+/* Styles pour les options secondaires dans la modale */
+/* Champ de saisie */
+.item-textarea {
+    width: 100%;
+    background: #22272b; /* Fond sombre comme dans la vidéo */
+    color: white;
+    border: 1px solid #384148;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    resize: none;
+}
+/* Alignement des boutons sous le texte */
+.add-item-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.main-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.secondary-options {
+    display: flex;
+    gap: 4px;
+}
+
+/* Boutons d'options (Attribuer, Date) */
+.btn-option {
+    background: #2c333a;
+    color: #9fadbc;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 3px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-option:hover {
+    background: #384148;
+    color: #c7d1db;
+}
+
+/* Bouton bleu */
+.btn-save-item {
+    background: #579dff;
+    color: #1d2125;
+    font-weight: bold;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+/* BTN ATTRIBUER */
+/* Conteneur principal du menu flottant */
+.popover-anchor {
+    position: relative;
+}
+
+.check-item-content {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px;
+}
+
+.item-badges{
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.assign-popover {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 304px;
+    background-color: #282e33;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px -4px rgba(0,0,0,0.5);
+    z-index: 100;
+    padding: 12px;
+    color: #9fadbc;
+    border: 1px solid #384148;
+}
+
+.popover-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.pop-input {
+    width: 100%;
+    background: #22272b;
+    border: 2px solid #384148;
+    border-radius: 4px;
+    color: white;
+    padding: 8px;
+    margin-bottom: 12px;
+}
+
+.pop-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+/* Liste des membres */
+.member-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.member-item:hover {
+    background-color: #384148;
+}
+
+.member-avatar {
+    width: 32px;
+    height: 32px;
+    background-color: #de350b; /* Couleur Trello par défaut */
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+/* Spécificités pour le menu Date */
+.date-popover {
+    width: 320px;
+}
+
+.pop-date-input {
+    width: 100%;
+    background: #22272b;
+    color: white;
+    border: 2px solid #384148;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+    font-family: inherit;
+}
+
+/* Section Rappel */
+.reminder-section {
+    margin-bottom: 20px;
+}
+
+.pop-select {
+    width: 100%;
+    background: #2c333a;
+    color: #9fadbc;
+    border: 1px solid #454f59;
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+/* Footer du popover */
+.popover-footer-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.popover-footer-actions .btn-save-item {
+    width: 100%;
+    text-align: center;
 }

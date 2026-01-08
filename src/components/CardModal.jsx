@@ -30,6 +30,14 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
     const currentUser = JSON.parse(localStorage.getItem('user'));
     const currentUserId = currentUser?._id || currentUser?.id;
 
+    const [activeChecklistId, setActiveChecklistId] = useState(null); // Pour savoir où on ajoute l'item
+    const [newItemText, setNewItemText] = useState(""); // Pour stocker ce qu'on écrit
+    const [showAssignMember, setShowAssignMember] = useState(null); // Stocke l'ID de l'item concerné
+    const [showDatePicker, setShowDatePicker] = useState(null); // ID de l'item
+    const [tempDate, setTempDate] = useState(""); // Pour stocker la date sélectionnée
+    const [selectedMember, setSelectedMember] = useState(null); // L'ID du membre choisi
+    const [selectedDate, setSelectedDate] = useState(null);     // La date choisie
+
     useEffect(() => {
         const fetchAllUsers = async () => {
             try {
@@ -102,6 +110,36 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
 
         // On envoie la mise à jour globale
         handleUpdate({ checklists: newChecklists });
+    };
+    const handleAddItem = async (checklistId) => {
+        // 1. Sécurité
+        if (!newItemText.trim()) return;
+
+        try {
+            // 2. Appel API
+            const response = await fetch(`http://localhost:5000/api/cards/${card._id}/checklists/${checklistId}/items`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    text: newItemText,
+                    assignee: selectedMember, // L'ID du membre choisi dans le popover
+                    dueDate: selectedDate      // La date choisie dans le popover
+                })
+            });
+
+            if (response.ok) {
+                const updatedCard = await response.json();
+                onUpdate(updatedCard); // Mise à jour de l'UI
+                
+                // 3. Réinitialisation des champs pour le prochain ajout
+                setNewItemText("");
+                setSelectedMember(null);
+                setSelectedDate(null);
+                setActiveChecklistId(null);
+            }
+        } catch (error) {
+            console.error("Erreur lors de l'ajout de l'item:", error);
+        }
     };
 
     const toggleMember = (userId) => {
@@ -593,11 +631,269 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
                                 <div className="checklist-items">
                                     {list.items.map((item, itemIndex) => (
                                         <div key={itemIndex} className="check-item">
-                                            <input type="checkbox" checked={item.isDone} />
-                                            <span>{item.text}</span>
+                                            <div className="check-item-content">
+                                                <div className="check-item-text-row">
+                                                    <input type="checkbox" checked={item.isDone} onChange={() => toggleItem(item._id)} />
+                                                    <span>{item.text}</span>
+                                                </div>
+                                                
+                                                {/* BADGES (Dates et Membres) */}
+                                                <div className="item-badges">
+                                                    <div className="popover-anchor">
+                                                        <button 
+                                                            className="btn-option"
+                                                            onClick={() => setShowDatePicker(list._id)}
+                                                        >
+                                                            <i className='bx bx-time'></i> 
+                                                        </button>
+                                                        {/* MENU DATE LIMITE (POPOVER) */}
+                                                        {showDatePicker === list._id && (
+                                                            <div className="assign-popover date-popover">
+                                                                <div className="popover-header">
+                                                                    <span>Modifier la date limite</span>
+                                                                    <i className='bx bx-x' onClick={() => setShowDatePicker(null)}></i>
+                                                                </div>
+                                                                
+                                                                <div className="popover-content">
+                                                                    {/* Calendrier Natif ou Date Picker */}
+                                                                    <input 
+                                                                        type="date" 
+                                                                        className="pop-date-input" 
+                                                                        onChange={(e) => setTempDate(e.target.value)}
+                                                                    />
+                                                                    
+                                                                    <div className="reminder-section">
+                                                                        <label className="pop-label">Définir un rappel</label>
+                                                                        <select className="pop-select">
+                                                                            <option>Aucun</option>
+                                                                            <option>À la date limite</option>
+                                                                            <option>5 minutes avant</option>
+                                                                            <option>1 jour avant</option>
+                                                                        </select>
+                                                                    </div>
+
+                                                                    <div className="popover-footer-actions">
+                                                                        <button className="btn-save-item" onClick={() => {
+                                                                            setSelectedDate(tempDate);
+                                                                            setShowDatePicker(null);
+                                                                            console.log("Date enregistrée :", tempDate);
+                                                                        }}>
+                                                                            Enregistrer
+                                                                        </button>
+                                                                        <button className="btn-option" onClick={() => {
+                                                                            setSelectedDate(null);
+                                                                            setShowDatePicker(null);
+                                                                        }}>
+                                                                            Effacer
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        {item.dueDate && (
+                                                            <span className="badge date-badge">
+                                                                <i className='bx bx-time'></i> {new Date(item.dueDate).toLocaleDateString()}
+                                                            </span>
+                                                        )} 
+                                                    </div>
+
+                                                    <div className="popover-anchor">
+                                                        <button className="btn-option"  onClick={() => setShowAssignMember(list._id)} >
+                                                            <i className='bx bx-user'></i> 
+                                                        </button>
+                                                        {/* LE MENU FLOTTANT (POPOVER) */}
+                                                        {showAssignMember === list._id && (
+                                                            <div className="assign-popover">
+                                                                <div className="popover-header">
+                                                                    <span>Attribuer</span>
+                                                                    <i 
+                                                                        className='bx bx-x' 
+                                                                        onClick={() => setShowAssignMember(null)}>
+                                                                    </i>
+                                                                </div>
+                                                                <div className="popover-content">
+                                                                    <input type="text" placeholder="Rechercher des membres" className="pop-input" autoFocus />
+                                                                    <p className="pop-section-title">Membres du tableau</p>
+                                                                    <div className="members-list">
+                                                                        {card.members?.map(member => (
+                                                                            <div 
+                                                                                key={member._id} 
+                                                                                className="member-item"
+                                                                                onClick={() => {
+                                                                                    setSelectedMember(member._id);
+                                                                                    setShowAssignMember(null);
+                                                                                    console.log("Assigner à:", member.username);
+                                                                                }}
+                                                                            >
+                                                                                <div className="member-avatar">
+                                                                                    {member.username.substring(0, 2).toUpperCase()}
+                                                                                </div>
+                                                                                <span className="member-name">{member.username}</span>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {item.assignee && (
+                                                            <span className="badge member-badge">
+                                                                {item.assignee.username.substring(0, 2).toUpperCase()}
+                                                            </span>
+                                                        )}
+
+
+                                                    </div>
+
+                                                    <div className="popover-anchor">
+                                                        <button type="btn-option">
+                                                            <i className='bx bx-dots-horizontal-rounded'></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     ))}
-                                    <button className="btn-add-item">Ajouter un élément</button>
+
+                                    {activeChecklistId === list._id ? (
+                                        // FORMULAIRE D'AJOUT (Visible seulement si on a cliqué sur le bouton)
+                                        <div className="add-item-form">
+                                            <textarea
+                                                className="pop-input-field"
+                                                placeholder="Ajouter un élément"
+                                                autoFocus
+                                                value={newItemText}
+                                                onChange={(e) => setNewItemText(e.target.value)}
+                                            />
+                                            <div className="add-item-actions">
+                                                <div className="main-actions">
+                                                    <button 
+                                                        className="btn-save" 
+                                                        onClick={() => {
+                                                            if (newItemText.trim()) {
+                                                                handleAddItem(list._id);
+                                                                setNewItemText(""); // On vide le texte
+                                                                setActiveChecklistId(null); // On ferme le formulaire
+                                                            }
+                                                        }}
+                                                    >
+                                                        Ajouter
+                                                    </button>
+                                                    <button className="btn-cancel" onClick={() => setActiveChecklistId(null)}>
+                                                        Annuler
+                                                    </button>
+                                                </div>
+
+                                                <div className="secondary-options">
+                                                    <div className="popover-anchor">
+                                                        <button className="btn-option"  onClick={() => setShowAssignMember(list._id)} >
+                                                            <i className='bx bx-user'></i> 
+                                                            Attribuer
+                                                        </button>
+                                                        {/* LE MENU FLOTTANT (POPOVER) */}
+                                                        {showAssignMember === list._id && (
+                                                            <div className="assign-popover">
+                                                                <div className="popover-header">
+                                                                    <span>Attribuer</span>
+                                                                    <i 
+                                                                        className='bx bx-x' 
+                                                                        onClick={() => setShowAssignMember(null)}>
+                                                                    </i>
+                                                                </div>
+                                                                <div className="popover-content">
+                                                                    <input type="text" placeholder="Rechercher des membres" className="pop-input" autoFocus value={selectedMember || ""} 
+                                                                         onChange={(e) => setSelectedMember(e.target.value)}
+                                                                    />
+                                                                    <p className="pop-section-title">Membres du tableau</p>
+                                                                    <div className="members-list">
+                                                                        {card.members?.map(member => (
+                                                                            <div 
+                                                                                key={member._id} 
+                                                                                className="member-item"
+                                                                                onClick={() => {
+                                                                                    setSelectedMember(member._id);
+                                                                                    setShowAssignMember(null);
+                                                                                    console.log("Assigner à:", member.username)
+                                                                                }}
+                                                                            >
+                                                                                <div className="member-avatar">
+                                                                                    {member.username.substring(0, 2).toUpperCase()}
+                                                                                </div>
+                                                                                <span className="member-name">{member.username}</span>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="popover-anchor">
+                                                        <button 
+                                                            className="btn-option"
+                                                            onClick={() => setShowDatePicker(list._id)}
+                                                        >
+                                                            <i className='bx bx-time'></i> 
+                                                            Date limite
+                                                        </button>
+                                                        {/* MENU DATE LIMITE (POPOVER) */}
+                                                        {showDatePicker === list._id && (
+                                                            <div className="assign-popover date-popover">
+                                                                <div className="popover-header">
+                                                                    <span>Modifier la date limite</span>
+                                                                    <i className='bx bx-x' onClick={() => setShowDatePicker(null)}></i>
+                                                                </div>
+                                                                
+                                                                <div className="popover-content">
+                                                                    {/* Calendrier Natif ou Date Picker */}
+                                                                    <input 
+                                                                        type="date" 
+                                                                        className="pop-date-input" 
+                                                                        onChange={(e) => setTempDate(e.target.value)}
+                                                                    />
+                                                                    
+                                                                    <div className="reminder-section">
+                                                                        <label className="pop-label">Définir un rappel</label>
+                                                                        <select className="pop-select">
+                                                                            <option>Aucun</option>
+                                                                            <option>À la date limite</option>
+                                                                            <option>5 minutes avant</option>
+                                                                            <option>1 jour avant</option>
+                                                                        </select>
+                                                                    </div>
+
+                                                                    <div className="popover-footer-actions">
+                                                                        <button className="btn-save-item" onClick={() => {
+                                                                            setSelectedDate(tempDate);
+                                                                            setShowDatePicker(null);
+                                                                            console.log("Date enregistrée :", tempDate)
+                                                                        }}>
+                                                                            Enregistrer
+                                                                        </button>
+                                                                        <button className="btn-option" onClick={() => {
+                                                                            setSelectedDate(null);
+                                                                            setShowDatePicker(null);
+                                                                        }}>
+                                                                            Effacer
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        // LE BOUTON INITIAL
+                                        <button 
+                                            className="btn-add-item" 
+                                            onClick={() => setActiveChecklistId(list._id)}
+                                        >
+                                            Ajouter un élément
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}

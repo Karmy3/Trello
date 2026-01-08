@@ -165,13 +165,21 @@ const cardSchema = new mongoose.Schema({
           createdAt: { type: Date, default: Date.now }
       }],
   
+
       checklists: [{
-          title: { type: String, default: "Checklist" },
-          items: [{
-              text: String,
-              isDone: { type: Boolean, default: false }
-          }]
-      }],
+        title: String,
+        items: [{
+            text: String,
+            isDone: { type: Boolean, default: false },
+            dueDate: { type: Date, default: null }, // Prêt pour l'échéance
+            assignee: {                             // Prêt pour l'attribut (membre)
+                type: mongoose.Schema.Types.ObjectId, 
+                ref: 'User',
+                default: null
+            }
+        }]
+    }],
+
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -274,6 +282,39 @@ app.put('/api/cards/:cardId/comments/:commentId', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
+app.post('/api/cards/:cardId/checklists/:checklistId/items', async (req, res) => {
+    try {
+        const { cardId, checklistId } = req.params;
+        
+        // CORRECTION ICI : Récupère aussi assignee et dueDate
+        const { text, assignee, dueDate } = req.body; 
+
+        const updatedCard = await Card.findOneAndUpdate(
+            { _id: cardId, "checklists._id": checklistId },
+            { 
+                $push: { 
+                    "checklists.$.items": { 
+                        text, 
+                        assignee,   // AJOUTÉ
+                        dueDate,    // AJOUTÉ
+                        isDone: false 
+                    } 
+                } 
+            },
+            { new: true }
+        )
+        // Pense à peupler l'assignee pour que le front reçoive l'objet membre et non juste l'ID
+        .populate('members', 'username avatar')
+        .populate('checklists.items.assignee', 'username avatar'); 
+
+        if (!updatedCard) return res.status(404).json({ message: "Carte non trouvée" });
+        res.json(updatedCard);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 
 // --- SCHÉMA POUR LES UTILISATEURS ---
 const userSchema = new mongoose.Schema({
