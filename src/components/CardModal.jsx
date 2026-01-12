@@ -202,6 +202,37 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
         handleUpdate({ members: newMembers });
     };
 
+    const toggleItem = async (checklistId, itemId) => {
+        // 1. On trouve l'item actuel pour inverser son état
+        const checklist = card.checklists.find(cl => cl._id === checklistId);
+        const item = checklist.items.find(it => it._id === itemId);
+        const newStatus = !item.isDone;
+
+        try {
+            // 2. Appel API (assure-toi que cette route existe sur ton backend)
+            const response = await fetch(`http://localhost:5000/api/cards/${card._id}/checklists/${checklistId}/items/${itemId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isDone: newStatus })
+            });
+
+            if (response.ok) {
+                const updatedCard = await response.json();
+                // 3. Mise à jour de l'UI via la prop onUpdate que tu as déjà
+                onUpdate(updatedCard);
+            }
+        } catch (error) {
+            console.error("Erreur lors du toggle de l'item:", error);
+        }
+    };
+
+    const calculateProgress = (items) => {
+        if (!items || items.length === 0) return 0;
+        // On change .completed par .isDone pour correspondre à ton code
+        const completedItems = items.filter(item => item.isDone).length;
+        return Math.round((completedItems / items.length) * 100);
+    };
+
     const addComment = async () => {
         // On récupère l'user juste avant l'envoi pour être sûr
         const user = JSON.parse(localStorage.getItem('user'));
@@ -651,7 +682,9 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
                             ></textarea>
                         </div>
 
-                        {card.checklists?.map((list, listIndex) => (
+                        {card.checklists?.map((list, listIndex) => {
+                            const progress = calculateProgress(list.items);
+                            return(
                             <div key={listIndex} className="checklist-container">
                                 <div className="section-header">
                                     <i className='bx bx-check-square'></i>
@@ -661,8 +694,10 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
                                 
                                 {/* Barre de progression (Optionnel mais joli) */}
                                 <div className="progress-bar-container">
-                                    <span className="progress-percent">0%</span>
-                                    <div className="progress-bg"><div className="progress-fill" style={{width: '0%'}}></div></div>
+                                    <span className="progress-percentage">{progress}%</span>
+                                    <div className="progress-bar-bg">
+                                        <div className="progress-bar-fill" style={{width: `${progress}%`}}></div>
+                                    </div>
                                 </div>
 
                                 <div className="checklist-items">
@@ -670,7 +705,7 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
                                         <div key={itemIndex} className="check-item">
                                             <div className="check-item-content">
                                                 <div className="check-item-text-row">
-                                                    <input type="checkbox" checked={item.isDone} onChange={() => toggleItem(item._id)} />
+                                                    <input type="checkbox" checked={item.isDone} onChange={() => toggleItem(list._id,item._id)} />
                                                     <span>{item.text}</span>
                                                 </div>
                                                 
@@ -976,7 +1011,8 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
                                     )}
                                 </div>
                             </div>
-                        ))}
+                        );
+                        })}
 
                     </div>
 

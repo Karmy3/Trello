@@ -289,7 +289,7 @@ app.post('/api/cards/:cardId/checklists/:checklistId/items', async (req, res) =>
     try {
         const { cardId, checklistId } = req.params;
         
-        // CORRECTION ICI : Récupère aussi assignee et dueDate
+        // CORRECTION ICI :ère aussi assignee et dueDate
         const { text, assignee, dueDate } = req.body; 
 
         const updatedCard = await Card.findOneAndUpdate(
@@ -316,7 +316,7 @@ app.post('/api/cards/:cardId/checklists/:checklistId/items', async (req, res) =>
         res.status(500).json({ message: err.message });
     }
 });
-// Route pour convertir un item en carte
+//R écupun item en carte
 app.post('/api/cards/:cardId/checklists/:checklistId/items/:itemId/convert', async (req, res) => {
     try {
         const { cardId, checklistId, itemId } = req.params;
@@ -351,6 +351,42 @@ app.post('/api/cards/:cardId/checklists/:checklistId/items/:itemId/convert', asy
         res.status(500).json({ message: err.message });
     }
 });
+
+// TOGGLER isDone d'un item de checklist
+app.put('/api/cards/:cardId/checklists/:checklistId/items/:itemId', async (req, res) => {
+    try {
+        const { cardId, checklistId, itemId } = req.params;
+
+        const card = await Card.findOne({
+            _id: cardId,
+            "checklists._id": checklistId,
+            "checklists.items._id": itemId
+        });
+
+        if (!card) {
+            return res.status(404).json({ message: "Carte / Checklist / Item introuvable" });
+        }
+
+        const checklist = card.checklists.id(checklistId);
+        const item = checklist.items.id(itemId);
+
+        // 🔥 TOGGLE
+        item.isDone = !item.isDone;
+
+        await card.save();
+
+        const updatedCard = await Card.findById(cardId)
+            .populate('members', 'username avatar')
+            .populate('checklists.items.assignee', 'username avatar');
+
+        res.json(updatedCard);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
 
 // --- SCHÉMA POUR LES UTILISATEURS ---
 const userSchema = new mongoose.Schema({

@@ -737,6 +737,44 @@
     gap: 8px;
     margin-bottom: 8px;
 }
+.checklist-progress-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    margin-left: 36px; /* Pour aligner avec le texte sous l'icône */
+}
+
+.progress-percentage {
+    font-size: 11px;
+    color: #b6c2cf;
+    width: 32px;
+    text-align: right;
+    margin-right: 8px;
+}
+
+.progress-bar-bg {
+    background: #384148; /* Couleur de fond sombre */
+    border-radius: 4px;
+    flex-grow: 1;
+    height: 8px;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background-color: #5794f2; /* Bleu Trello */
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.progress-bar-fill.is-complete {
+    background-color: #4bce97; /* Vert quand 100% */
+}
+
+.item-text.completed {
+    text-decoration: line-through;
+    color: #8c9bab;
+}
 
 /* Styles pour les options secondaires dans la modale */
 /* Champ de saisie */
