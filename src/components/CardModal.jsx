@@ -30,6 +30,7 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
     const currentUser = JSON.parse(localStorage.getItem('user'));
     const currentUserId = currentUser?._id || currentUser?.id;
 
+    const [newChecklistTitle, setNewChecklistTitle] = useState("");
     const [activeChecklistId, setActiveChecklistId] = useState(null); // Pour savoir où on ajoute l'item
     const [newItemText, setNewItemText] = useState(""); // Pour stocker ce qu'on écrit
     const [showAssignMember, setShowAssignMember] = useState(null); // Stocke l'ID de l'item concerné
@@ -37,6 +38,9 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
     const [tempDate, setTempDate] = useState(""); // Pour stocker la date sélectionnée
     const [selectedMember, setSelectedMember] = useState(null); // L'ID du membre choisi
     const [selectedDate, setSelectedDate] = useState(null);     // La date choisie
+
+    const [showConvertItem, setShowConvertItem] = useState(null); // Stocke l'ID de l'item concerné
+    const [hasConverted, setHasConverted] = useState(false);
 
     useEffect(() => {
         const fetchAllUsers = async () => {
@@ -139,6 +143,37 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
             }
         } catch (error) {
             console.error("Erreur lors de l'ajout de l'item:", error);
+        }
+    };
+
+    // Vérifiez bien les arguments passés à la fonction
+    const handleConvertToCard = async (checklistId, item) => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/cards/${card._id}/checklists/${checklistId}/items/${item._id}/convert`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setShowConvertItem(null);
+                if (onUpdate) {
+                    onUpdate(data.updatedCard); // L'item disparaît de la modale
+                }
+                setHasConverted(true); // <--- On note qu'une conversion a eu lieu
+            }
+        } catch (error) {
+            console.error("Erreur conversion :", error);
+        }
+    };
+    const handleInternalClose = () => {
+        if (hasConverted) {
+            // Si on a converti un item, on recharge pour voir la nouvelle carte sur le board
+            window.location.reload();
+        } else {
+            // Sinon, on ferme normalement sans recharger
+            onClose();
         }
     };
 
@@ -251,7 +286,7 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
                         <i className='bx bx-volume-full'></i>
                         <i className='bx bx-image'></i>
                         <i className='bx bx-dots-horizontal-rounded'></i>
-                        <i className='bx bx-x close-icon' onClick={onClose}></i>
+                        <i className='bx bx-x close-icon' onClick={handleInternalClose}></i>
                     </div>
                 </div>
                 
@@ -431,16 +466,18 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
                                                 className="pop-input-field" 
                                                 placeholder="Checklist"
                                                 autoFocus
-                                                id="checklist-title-input" // On utilise un ID pour récupérer la valeur facilement
+                                                value={newChecklistTitle} 
+                                                onChange={(e) => setNewChecklistTitle(e.target.value)}
                                             />
                                             
                                             <button 
                                                 className="btn-save-date" 
                                                 onClick={() => {
-                                                    const input = document.getElementById('checklist-title-input');
-                                                    if (input.value.trim()) {
-                                                        addChecklist(input.value);
-                                                        setActiveMenu(null); // On ferme le menu
+                                                    // On vérifie si la variable n'est pas vide
+                                                    if (newChecklistTitle.trim()) {
+                                                        addChecklist(newChecklistTitle); // On utilise la variable directement
+                                                        setNewChecklistTitle("");        // On vide le champ pour la prochaine fois
+                                                        setActiveMenu(null);             // On ferme le menu
                                                     }
                                                 }}
                                             >
@@ -506,17 +543,17 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
                                     <div className="members-section-list">
                                         <label className="pop-label">Membres du tableau</label>
                                         {allUsers.map((user) => {
-                                        const isMember = card.members?.some(m => (m._id || m) === user._id);
-                                        return (
-                                            <div key={user._id} className="member-item" onClick={() => toggleMember(user._id)}>
-                                            <div className="member-avatar-small">
-                                                {user.username.substring(0, 2).toUpperCase()}
-                                            </div>
-                                            <span className="member-name">{user.username}</span>
-                                            {/* On affiche la coche si l'utilisateur est déjà membre */}
-                                            {isMember && <i className='bx bx-check'></i>}
-                                            </div>
-                                        );
+                                            const isMember = card.members?.some(m => (m._id || m) === user._id);
+                                            return (
+                                                <div key={user._id} className="member-item" onClick={() => toggleMember(user._id)}>
+                                                <div className="member-avatar-small">
+                                                    {user.username.substring(0, 2).toUpperCase()}
+                                                </div>
+                                                <span className="member-name">{user.username}</span>
+                                                {/* On affiche la coche si l'utilisateur est déjà membre */}
+                                                {isMember && <i className='bx bx-check'></i>}
+                                                </div>
+                                            );
                                         })}
                                     </div>
                                     </div>
@@ -737,19 +774,62 @@ function CardModal({ card, listTitle, onClose, onUpdate}) {
                                                         )}
 
                                                         {item.assignee && (
-                                                            <span className="badge member-badge">
-                                                                {item.assignee.username.substring(0, 2).toUpperCase()}
-                                                            </span>
+                                                            <div className="item-assignee">
+                                                                {item.assignee.avatar ? (
+                                                                <img src={item.assignee.avatar} alt="avatar" className="avatar-small" />
+                                                                ) : (
+                                                                <span className="avatar-initials">
+                                                                    {item.assignee.username?.substring(0, 2).toUpperCase()}
+                                                                </span>
+                                                                )}
+                                                            </div>
                                                         )}
 
-
                                                     </div>
 
-                                                    <div className="popover-anchor">
-                                                        <button type="btn-option">
-                                                            <i className='bx bx-dots-horizontal-rounded'></i>
-                                                        </button>
-                                                    </div>
+                                                        <div key={item._id} className="popover-anchor">
+                                                            <button 
+                                                                type="button" 
+                                                                className="btn-option" 
+                                                                onClick={() => setShowConvertItem(item._id)}
+                                                            >
+                                                                <i className='bx bx-dots-horizontal-rounded'></i>
+                                                            </button>
+
+                                                            {/* LE MENU FLOTTANT (POPOVER) UNIQUE */}
+                                                            {showConvertItem === item._id && (
+                                                                <div className="item-options-popover">
+                                                                    <div className="popover-header">
+                                                                        <span>Actions de la tâche</span>
+                                                                        <i 
+                                                                            className='bx bx-x' 
+                                                                            onClick={() => setShowConvertItem(null)} // Fermer
+                                                                            style={{ cursor: 'pointer' }}
+                                                                        ></i>
+                                                                    </div>
+
+                                                                    <div className="popover-content">
+                                                                        <button 
+                                                                            className="btn-convert" 
+                                                                            onClick={() => handleConvertToCard(list._id, item)}
+                                                                        >
+                                                                            Convertir en carte
+                                                                            <i className='bx bx-redo'></i>
+                                                                        </button>
+                                                                        
+                                                                        <div className="popover-option delete" onClick={() => deleteItem(item._id)}>
+                                                                            <button className="btn-delete"
+                                                                                onClick={() => deleteItem(item._id)}
+                                                                            >
+                                                                                Supprimer
+                                                                                <i className='bx bx-trash'></i>
+                                                                            </button>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                 </div>
                                             </div>
                                         </div>

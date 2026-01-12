@@ -71,9 +71,14 @@
     grid-template-columns: 1.5fr 1fr;
     gap: 32px;
 }
+.modal-activity-content{
+    max-height: 380px;
 
+    overflow-y: auto;
+    overflow-x: hidden;
+}
 .modal-main-content{
-    max-height: 400px;
+    max-height: 380px;
 
     overflow-y: auto;
     overflow-x: hidden;

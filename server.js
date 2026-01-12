@@ -191,7 +191,8 @@ const Card = mongoose.model('Card', cardSchema);
 app.get('/api/cards/:listId', async (req, res) => {
   try {
     const cards = await Card.find({ listId: req.params.listId })
-      .populate('members', 'username avatar');
+      .populate('members', 'username avatar')
+      .populate('checklists.items.assignee', 'username avatar');
     res.json(cards);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -222,7 +223,8 @@ app.put('/api/cards/:id', async (req, res) => {
       req.params.id,
       { $set: req.body }, 
       { new: true } // Pour renvoyer la carte modifiée au frontend
-    ).populate('members', 'username avatar');
+    ).populate('members', 'username avatar')
+     .populate('checklists.items.assignee', 'username avatar');
 
     if (!updatedCard) {
       return res.status(404).json({ message: "Carte introuvable" });
@@ -314,7 +316,41 @@ app.post('/api/cards/:cardId/checklists/:checklistId/items', async (req, res) =>
         res.status(500).json({ message: err.message });
     }
 });
+// Route pour convertir un item en carte
+app.post('/api/cards/:cardId/checklists/:checklistId/items/:itemId/convert', async (req, res) => {
+    try {
+        const { cardId, checklistId, itemId } = req.params;
 
+        // 1. Trouver la carte source
+        const sourceCard = await Card.findById(cardId);
+        if (!sourceCard) return res.status(404).json({ message: "Carte source introuvable" });
+
+        const checklist = sourceCard.checklists.id(checklistId);
+        const item = checklist.items.id(itemId);
+
+        // 2. Créer la nouvelle carte (Option A : Description vide par défaut)
+        const newCard = new Card({
+            title: item.text,
+            listId: sourceCard.listId, 
+            boardId: sourceCard.boardId, // Important pour qu'elle apparaisse sur le tableau
+            description: "",            // On force une chaîne vide plutôt que null
+            dueDate: item.dueDate || null,
+            members: item.assignee ? [item.assignee] : [],
+        });
+        
+        await newCard.save();
+
+        // 3. Supprimer l'item de la checklist d'origine
+        sourceCard.checklists.id(checklistId).items.pull(itemId);
+        await sourceCard.save();
+
+        // On renvoie les deux pour mettre à jour le frontend
+        res.json({ updatedCard: sourceCard, newCard: newCard });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: err.message });
+    }
+});
 
 // --- SCHÉMA POUR LES UTILISATEURS ---
 const userSchema = new mongoose.Schema({
