@@ -1,25 +1,18 @@
 import { useState, useEffect } from 'react';
 import './ListColumn.css';
 import CardModal from './CardModal';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 
-function ListColumn({ list, boardId }) {
-    const [cards, setCards] = useState([]);
+function ListColumn({ list, boardId, cards, onCardAdded, onUpdateCards }) {
     const [isAddingCards, setIsAddingCards] = useState(false);
     const [cardTitle, setCardTitle] = useState("");
     const [cardToOpen, setCardToOpen] = useState(null);
 
-    useEffect(() => {
-        fetch(`http://localhost:5000/api/cards/${list._id}`)
-            .then(res => res.json())
-            .then(data => setCards(data));
-    }, [list._id]);
-
-    // --- CETTE FONCTION MANQUAIT ---
     const handleCardUpdate = (updatedCard) => {
         // 1. Met à jour la liste des cartes en arrière-plan
-        setCards(prevCards => prevCards.map(c => 
-            c._id === updatedCard._id ? updatedCard : c
-        ));
+        const newCards = cards.map(c => c._id === updatedCard._id ? updatedCard : c);
+        onUpdateCards(list._id, newCards);
+
         // 2. Met à jour la carte actuellement ouverte dans la modale
         setCardToOpen(updatedCard);
     };
@@ -35,7 +28,7 @@ function ListColumn({ list, boardId }) {
         })
         .then(res => res.json())
         .then(newCard => {
-            setCards([...cards, newCard]);
+            onCardAdded(list._id, newCard);
             setCardTitle("");
             setIsAddingCards(false);
         });
@@ -49,32 +42,53 @@ function ListColumn({ list, boardId }) {
                 <div className="btn-icon-list"><i className='bx bx-dots-horizontal-rounded'></i></div>
             </div>
 
-            <div className="cards-area">
-                {cards.map(card => (
+            {/* 2. On enveloppe la zone des cartes avec Droppable */}
+            <Droppable droppableId={String(list._id)}>
+                {(provided) => (
                     <div 
-                        key={card._id} 
-                        className="card-item-styled" 
-                        onClick={() => setCardToOpen(card)}
+                        className="cards-area" 
+                        {...provided.droppableProps}
+                        ref={provided.innerRef} 
+                        style={{ minHeight: "10px" }}
                     >
-                        <span>{card.title}</span>
-                        {/* Optionnel: Petit indicateur visuel si la carte a des labels */}
-                        <div className="card-mini-labels">
-                            {card.labels?.map((l, i) => (
-                                <div key={i} className="mini-label" style={{backgroundColor: l.color}}></div>
-                            ))}
-                        </div>
-                    </div>
-                ))}
+                        {cards.map((card, index) => (
+                            /* 3. On enveloppe chaque carte avec Draggable */
+                            <Draggable key={card._id} draggableId={String(card._id)} index={index}>
+                                {(provided) => (
+                                    <div 
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        key={card._id} 
+                                        className="card-item-styled" 
+                                        onClick={() => setCardToOpen(card)}
+                                    >
+                                        <span>{card.title}</span>
+                                        {/* Optionnel: Petit indicateur visuel si la carte a des labels */}
+                                        <div className="card-mini-labels">
+                                            {card.labels?.map((l, i) => (
+                                                <div key={i} className="mini-label" style={{backgroundColor: l.color}}></div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </Draggable>
+                        ))}
 
-                {cardToOpen && (
-                    <CardModal 
-                        card={cardToOpen} 
-                        listTitle={list.title} 
-                        onClose={() => setCardToOpen(null)} 
-                        onUpdate={handleCardUpdate} // ✅ ON AJOUTE ÇA ICI
-                    />
+                        {/* 4. Placeholder : l'espace vide qui se crée lors du survol */}
+                        {provided.placeholder}
+                    </div>
                 )}
-            </div>
+            </Droppable>
+    
+            {cardToOpen && (
+                <CardModal 
+                    card={cardToOpen} 
+                    listTitle={list.title} 
+                    onClose={() => setCardToOpen(null)} 
+                    onUpdate={handleCardUpdate}
+                />
+            )}
 
             {isAddingCards ? (
                 <form onSubmit={handleOnSubmitCards} className="add-card-form">

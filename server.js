@@ -146,6 +146,7 @@ const cardSchema = new mongoose.Schema({
   title: { type: String, required: true },
       listId: { type: mongoose.Schema.Types.ObjectId, ref: 'List' },
       description: { type: String, default: "" },
+      order: { type: Number, default: 0 },
   
       startDate: Date,
       dueDate: Date,
@@ -191,6 +192,7 @@ const Card = mongoose.model('Card', cardSchema);
 app.get('/api/cards/:listId', async (req, res) => {
   try {
     const cards = await Card.find({ listId: req.params.listId })
+      .sort({ order: 1 })
       .populate('members', 'username avatar')
       .populate('checklists.items.assignee', 'username avatar');
     res.json(cards);
@@ -370,7 +372,7 @@ app.put('/api/cards/:cardId/checklists/:checklistId/items/:itemId', async (req, 
         const checklist = card.checklists.id(checklistId);
         const item = checklist.items.id(itemId);
 
-        // 🔥 TOGGLE
+        // TOGGLE
         item.isDone = !item.isDone;
 
         await card.save();

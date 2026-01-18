@@ -2,7 +2,6 @@
 import Header from './Header';
 import { Link } from "react-router-dom";
 import capture from '../assets/capture.png'
-import firsttest from '../assets/firsttest.jpg'
 import './Boards.css'
 
 // 1. On crée le composant Layout (le squelette)

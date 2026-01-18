@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from 'react';
-import trelloLogo from '../assets/trello.jpg'
+import trelloLogo from '../assets/trello.png'
 import './Header.css'
 import CreateBoards from './CreateBoards';
 
