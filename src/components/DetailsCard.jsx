@@ -23,24 +23,34 @@ function DetailsCard() {
     const [allCards, setAllCards] = useState({}); // Pour stocker les cartes de chaque liste
 
     useEffect(() => {
-        fetch(`http://localhost:5000/api/boards/${id}`)
-            .then(res => res.json())
-            .then(data => setBoard(data));
+    const loadData = async () => {
+        try {
+        const response = await fetch(`http://localhost:5000/api/boards/${id}/full`);
+        const data = await response.json(); 
 
-        fetch(`http://localhost:5000/api/lists/${id}`)
-            .then(res => res.json())
-            .then(data => {
-                setLists(data);
-                // On prépare l'objet allCards pour chaque liste
-                data.forEach(list => {
-                    fetch(`http://localhost:5000/api/cards/${list._id}`)
-                        .then(res => res.json())
-                        .then(cards => {
-                            // On remplit l'état avec { "id_liste": [tableau_de_cartes] }
-                            setAllCards(prev => ({ ...prev, [list._id]: cards }));
-                        });
-                });
-            });
+        // 1. On stocke les infos du tableau (titre, fond, etc.)
+        setBoard(data); 
+        
+        // 2. On stocke les listes
+        setLists(data.lists); 
+
+        // 3. IMPORTANT : Pour que tes composants <ListColumn /> ne plantent pas,
+        // on transforme le tableau 'allCards' en l'objet que ton code attend déjà.
+        const cardsByList = {};
+        data.allCards.forEach(card => {
+            if (!cardsByList[card.listId]) {
+            cardsByList[card.listId] = [];
+            }
+            cardsByList[card.listId].push(card);
+        });
+        
+        setAllCards(cardsByList);
+
+        } catch (error) {
+        console.error("Erreur lors du chargement complet :", error);
+        }
+    };
+    loadData();
     }, [id]);
 
     const handleAddList = (e) => {

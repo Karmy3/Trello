@@ -72,11 +72,43 @@ app.post('/api/boards', async (req, res) => {
 });
 
 // Récupérer TOUS les tableaux (pour la liste générale)
-app.get('/api/boards', async (req, res) => {
+app.get('/api/boards/:id/full', async (req, res) => {
   try {
-    const boards = await Board.find().sort({ createdAt: -1 });
-    res.json(boards);
-  } catch (err) { res.status(500).json({ message: err.message }); }
+    const boardId = new mongoose.Types.ObjectId(req.params.id);
+
+    const fullBoard = await Board.aggregate([
+      // 1. Trouver le tableau spécifique
+      { $match: { _id: boardId } },
+
+      // 2. Aller chercher les listes qui appartiennent à ce tableau
+      {
+        $lookup: {
+          from: "lists",          // Nom de la collection des listes
+          localField: "_id",      // _id du Board
+          foreignField: "boardId", // champ boardId dans List
+          as: "lists"             // nom du tableau de sortie
+        }
+      },
+
+      // 3. (Optionnel mais puissant) Aller chercher les cartes pour chaque liste
+      // On utilise un lookup sur les listes qu'on vient de trouver
+      {
+        $lookup: {
+          from: "cards",
+          localField: "lists._id",
+          foreignField: "listId",
+          as: "allCards"
+        }
+      }
+    ]);
+
+    if (!fullBoard.length) return res.status(404).json({ message: "Tableau introuvable" });
+    
+    // On renvoie le premier (et seul) résultat
+    res.json(fullBoard[0]);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur lors de l'agrégation", error: err.message });
+  }
 });
 
 // Récupérer les 4 derniers tableaux consultés (Récents)
@@ -117,14 +149,6 @@ const List = mongoose.model('List', listSchema);
 // --- ROUTES POUR LES LISTES ---
 
 // 1. Récupérer les listes d'un tableau spécifique
-app.get('/api/lists/:boardId', async (req, res) => {
-  try {
-    const lists = await List.find({ boardId: req.params.boardId });
-    res.json(lists);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 
 // 2. Créer une nouvelle liste
 app.post('/api/lists', async (req, res) => {
@@ -189,17 +213,6 @@ const Card = mongoose.model('Card', cardSchema);
 // --- ROUTES POUR LES CARTES ---
 
 // 1. Récupérer les cartes d'un list spécifique
-app.get('/api/cards/:listId', async (req, res) => {
-  try {
-    const cards = await Card.find({ listId: req.params.listId })
-      .sort({ order: 1 })
-      .populate('members', 'username avatar')
-      .populate('checklists.items.assignee', 'username avatar');
-    res.json(cards);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 
 // 2. Créer une nouvelle carte
 app.post('/api/cards', async (req, res) => {
