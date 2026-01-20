@@ -5,20 +5,28 @@
     align-items: center;
     justify-content: flex-start;
     min-height: 100vh;
-    background-color: #f9fafc;
-    padding-top: 40px;
+    background-color: #0b40a9;
+    padding-top: 0px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* Logo Trello centré */
-.auth-logo {
-    width: 200px;
+.title_auth {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 40px;
+}
+
+.title_auth img {
+    width: 90px;
 }
 
 /* La carte blanche avec l'ombre portée */
 .auth-card {
     background: white;
+    margin-top: 20px;
     padding: 25px 40px;
     border-radius: 3px;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 10px;
@@ -52,21 +60,25 @@
 }
 
 /* Le bouton bleu "Continuer" */
-.btn-auth-primary {
-    width: 100%;
-    background-color: #0052cc;
-    color: white;
-    border: none;
-    border-radius: 3px;
-    padding: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 14px;
-    margin-top: 10px;
+.btn-auth-primary  {
+  margin:10px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  padding: 0.4em 0.7em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #646cff;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  color: #213547;
 }
-
-.btn-auth-primary:hover {
-    background-color: #0065ff;
+.btn-auth-primary :hover {
+  background-color: #64a2ff;
+}
+.btn-auth-primary :focus,
+.btn-auth-primary :focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
 }
 
 /* Le lien en bas pour switcher Inscription/Connexion */

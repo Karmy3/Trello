@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import trelloLogo from '../assets/trello.png'
+import './Authentification.css'
 
 // On utilise un seul nom de fonction ici qui correspond à votre export
 function Authentification({ onLoginSuccess }) { 
@@ -27,11 +29,12 @@ function Authentification({ onLoginSuccess }) {
 
     return (
         <div className="auth-container">
-            {/* Assurez-vous que l'image est dans votre dossier 'public' */}
-            <img src="/trello-logo.png" alt="Trello" className="auth-logo" />
-            
             <div className="auth-card">
-                {/* Le titre change selon le mode (Vidéo 0:00) */}
+                <div className="title_auth">
+                    <img src={trelloLogo} alt="Trello" className="auth-logo" />
+                    <h1>Trello</h1>
+                </div>
+                
                 <h2>{isRegister ? "Créer un compte" : "Connectez-vous pour continuer"}</h2>
                 
                 <form onSubmit={handleSubmit}>
@@ -73,7 +76,6 @@ function Authentification({ onLoginSuccess }) {
                 </form>
                 
                 <div className="auth-footer">
-                    {/* Le lien switch le mode (Vidéo 0:12) */}
                     <span onClick={() => setIsRegister(!isRegister)}>
                         {isRegister ? "Déjà un compte ? Se connecter" : "Créer un compte"}
                     </span>
