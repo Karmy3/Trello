@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import trelloLogo from '../assets/trello.png'
+import trelloLogo from '../../assets/trello.png'
 import './Authentification.css'
 
 // On utilise un seul nom de fonction ici qui correspond à votre export

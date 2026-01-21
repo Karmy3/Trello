@@ -1,4 +1,6 @@
 import React from 'react';
+import { useState } from 'react';
+import InviteModal from './InviteModal';
 import { 
   User, Activity, CreditCard, Settings, 
   Layout, Users, ExternalLink, X 
@@ -6,10 +8,14 @@ import {
 
 
 const SettingsPage = () => {
+
+  const [isModalOpen, setModalOpen] = useState(false);
+
   return (
     <div className="flex min-h-screen bg-white font-sans text-slate-700">
       {/* Sidebar Gauche */}
-      <aside className="w-64 border-r border-gray-200 p-4 bg-gray-50/50">
+      <aside className="w
+      ,-64 border-r border-gray-200 p-4 bg-gray-50/50">
         <div className="mb-8">
           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Paramètres personnels</h3>
           <nav className="space-y-1">
@@ -49,9 +55,19 @@ const SettingsPage = () => {
           <h1 className="text-xl font-bold flex items-center gap-2">
             Collaborateurs <span className="text-sm font-normal bg-gray-200 px-2 py-0.5 rounded-full">1 / 10</span>
           </h1>
-          <button className="bg-[#0052cc] hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2">
-            <Users size={16} /> Inviter des membres dans l'espace de travail
-          </button>
+
+          <div className="p-8">
+            <button 
+              onClick={() => setModalOpen(true)}
+              className="bg-[#0052cc] hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2">
+              <Users size={16} /> Inviter des membres dans l'espace de travail
+            </button>
+            <InviteModal 
+              isOpen={isModalOpen} 
+              onClose={() => setModalOpen(false)} 
+            />
+          </div>
+
         </header>
 
         <div className="flex gap-8">

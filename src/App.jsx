@@ -2,13 +2,13 @@ import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate,useNavigate } from "react-router-dom";
 import './App.css'
 
-import AuthPage from './components/Authentification';
+import AuthPage from './components/authentification/Authentification';
 import LogoutPage from './components/LogoutPage';
 import Home from './components/HomeScreen';
 import Boards from './components/Boards';
 import Templates from './components/Templates';
 import DetailsCard from './components/DetailsCard';
-import Membres from './components/SettingsPage';
+import Membres from './components/settings/membres/SettingsPage';
 
 
 function App() {
