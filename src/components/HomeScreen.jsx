@@ -37,13 +37,18 @@ function Home({ user, onLogout }) {
     useEffect(() => {
         // Charger tous les tableaux
         fetch('http://localhost:5000/api/boards')
-            .then(res => res.json())
-            .then(data => setAllBoards(data));
+            .then(res => {
+                if (!res.ok) throw new Error("Erreur serveur");
+                return res.json();
+            })
+            .then(data => setAllBoards(data))
+            .catch(err => console.error("Erreur AllBoards:", err));
 
         // Charger les tableaux récents
         fetch('http://localhost:5000/api/boards/recent')
             .then(res => res.json())
-            .then(data => setRecentBoards(data));
+            .then(data => setRecentBoards(data))
+            .catch(err => console.error("Erreur RecentBoards:", err));
     }, []);
 
   return (
@@ -83,7 +88,9 @@ function Home({ user, onLogout }) {
 
                         <div className="sidebar-menu">
                             <li className="btn-sidebar"><i className='bx  bx-table'></i> Tableaux</li>
-                            <li className="btn-sidebar"><i className='bx  bx-user-plus bx-flip-horizontal'></i> Membres</li>
+                            <Link to="/w/espacestravail/membres">
+                                <button className="btn-sidebar" ><i className='bx  bx-user-plus bx-flip-horizontal'></i> Membres</button>
+                            </Link>
                             <li className="btn-sidebar"><i className='bx  bx-cog'></i> Paramètres</li>
                         </div>
 
