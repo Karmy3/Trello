@@ -8,6 +8,8 @@ import Home from './components/HomeScreen';
 import Boards from './components/Boards';
 import Templates from './components/Templates';
 import DetailsCard from './components/DetailsCard';
+import Membres from './components/SettingsPage';
+
 
 function App() {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
@@ -37,10 +39,11 @@ function App() {
           path="/" 
           element={user ? <Home user={user} onLogout={handleLogout}/> : <Navigate to="/auth" />} 
         />
+        <Route path="/b/:id" element={user ? <DetailsCard /> : <Navigate to="/auth" />} />
         <Route path="/boards" element={user ? <Boards /> : <Navigate to="/auth" />} />
         <Route path="/templates" element={user ? <Templates /> : <Navigate to="/auth" />} />
-        <Route path="/b/:id" element={user ? <DetailsCard /> : <Navigate to="/auth" />} />
-        
+        <Route path="/w/espacestravail/membres" element={user ? <Membres /> : <Navigate to="/auth" />} />
+
         {/* Redirection par défaut si la page n'existe pas */}
         <Route path="*" element={<Navigate to={user ? "/" : "/auth"} />} />
       </Routes>
