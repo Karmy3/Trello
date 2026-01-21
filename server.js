@@ -120,6 +120,16 @@ app.get('/api/boards/recent', async (req, res) => {
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
+// Récupérer TOUS les tableaux (pour la page Home)
+app.get('/api/boards', async (req, res) => {
+  try {
+    const boards = await Board.find().sort({ createdAt: -1 });
+    res.json(boards);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur lors de la récupération des tableaux" });
+  }
+});
+
 // Récupérer UN tableau par son ID (ET mettre à jour sa date d'activité)
 app.get('/api/boards/:id', async (req, res) => {
   try {
